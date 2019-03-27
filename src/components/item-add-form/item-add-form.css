@@ -1,0 +1,9 @@
+.item-add-form {
+  margin: 10px 0 0;
+  width: 100%;
+  text-align: center;
+}
+
+.item-add-form input {
+  margin: 0 0 10px;
+}
