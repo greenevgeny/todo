@@ -612,6 +612,15 @@ nav.menu { align-items:center; }
   /* Подсказка «Листайте — пройдут сутки» — сверху по центру неба (место ставит placeHint) */
   .sky-ui .scroll-hint { text-shadow:0 1px 12px rgb(0 0 0 / .45); }
 }
+/* 23.10: низкий экран телефона (браузер внутри Threads, Instagram) — первый экран компактнее, чтобы «МУРМАНСК» не теснило */
+@media (max-width:700px) and (max-height:780px) {
+  .sky-ui { padding-bottom:24px; }
+  .sky-ui .wrap { gap:16px; }
+  .clock { font-size:48px !important; margin-top:8px; }
+  .sky-state { margin-top:8px; }
+  .sky-days { margin-top:16px; }
+  .sky-side .hours { margin:4px 0; }
+}
 /* Узор ягеля (lichen-tile) — фон слева в календаре, планировщике, «Как добраться», дневнике. В светлой обсерватории — тёмный */
 .obs.lace::before { filter:invert(1) hue-rotate(180deg); opacity:.22; }
 .come.lace::before, .diary.lace::before { opacity:.3; }
@@ -985,10 +994,19 @@ function makeSky(canvas, opts = {}) {
       const off = document.createElement('canvas'); off.width = W * DPR; off.height = H * DPR;
       const o = off.getContext('2d'); o.setTransform(DPR, 0, 0, DPR, 0, 0);
       o.font = `400 100px 'Dela Gothic One', sans-serif`;
-      const fs = Math.min(100 * (W * .92) / o.measureText(opts.word).width, H * .26);
-      o.font = `400 ${fs}px 'Dela Gothic One', sans-serif`; o.textAlign = 'center'; o.textBaseline = 'alphabetic';
+      let fs = Math.min(100 * (W * .92) / o.measureText(opts.word).width, H * .26);
       // На телефоне слово мелкое, а сопки той же высоты: поднимаем, чтобы пики закрывали не больше ~30% букв (как на компьютере)
-      const by = W < 600 ? Math.min(hy - H * .06, hy - H * .09 * 1.25 + fs * .3) : hy - H * .06;
+      let by = W < 600 ? Math.min(hy - H * .06, hy - H * .09 * 1.25 + fs * .3) : hy - H * .06;
+      // 23.10: на низких экранах (браузер внутри Threads) блок с часами наезжал на слово — ставим слово над блоком, под подсказкой
+      if (W < 600) {
+        const ui = document.querySelector('.sky-ui .wrap'), c = canvas.getBoundingClientRect();
+        if (ui) {
+          by = Math.min(by, ui.getBoundingClientRect().top - c.top - 16);
+          const minTop = (document.getElementById('top')?.getBoundingClientRect().height || 64) + 20 + 28 + 12;
+          if (by - fs * .8 < minTop) fs = Math.max(24, (by - minTop) / .8);
+        }
+      }
+      o.font = `400 ${fs}px 'Dela Gothic One', sans-serif`; o.textAlign = 'center'; o.textBaseline = 'alphabetic';
       o.fillStyle = '#fff'; o.fillText(opts.word, W / 2, by);
       o.globalCompositeOperation = 'source-in';
       const top = by - fs * .8, hgt = fs * .95, s = Math.max(W / img.naturalWidth, hgt / img.naturalHeight);
