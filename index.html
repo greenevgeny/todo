@@ -42,7 +42,7 @@ nav.menu a { text-decoration:none; color:#F5F2EA; opacity:.85; }
 header.top.solid nav.menu a { color:var(--text); }
 
 /* ---------- 1. Сутки в Мурманске (живое небо) ---------- */
-.sky-wrap { position:relative; height:100vh; overflow:hidden; background:#05080F; }
+.sky-wrap { position:relative; height:100vh; height:100svh; overflow:hidden; background:#05080F; }
 #skyCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .sky-ui { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 0 48px; color:#F5F2EA; pointer-events:none; background:linear-gradient(0deg, rgb(5 8 15 / .55) 0%, rgb(5 8 15 / .25) 35%, rgb(5 8 15 / 0) 60%); }
 .sky-ui .wrap { width:100%; display:grid; grid-template-columns:1fr auto; gap:32px; align-items:end; }
@@ -98,7 +98,7 @@ header.top.solid nav.menu a { color:var(--text); }
 
 /* ---------- 4. Город: горизонтальная лента ---------- */
 .city { position:relative; }
-.city-pin { height:100vh; display:flex; flex-direction:column; justify-content:center; overflow:hidden; padding-top:80px; }
+.city-pin { height:100vh; height:100svh; display:flex; flex-direction:column; justify-content:center; overflow:hidden; padding-top:80px; }
 .city-head { width:100%; display:flex; justify-content:space-between; align-items:end; gap:32px; margin-bottom:32px; }
 .city-head h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; max-width:760px; }
 .city-track { display:flex; gap:32px; padding-left:max(32px, calc((100vw - 1280px) / 2 + 32px)); will-change:transform; }
@@ -121,7 +121,7 @@ header.top.solid nav.menu a { color:var(--text); }
 .road svg { width:100%; height:auto; overflow:visible; }
 
 /* ---------- 6. Териберка: раскрытие ---------- */
-.teri-pin { height:100vh; position:relative; overflow:hidden; }
+.teri-pin { height:100vh; height:100svh; position:relative; overflow:hidden; }
 .teri-img { position:absolute; inset:0; background:center/cover no-repeat; clip-path:inset(28% 34% 28% 34% round 24px); will-change:clip-path; }
 .teri-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgb(5 8 15 / .2), rgb(5 8 15 / .7)); }
 .teri-title { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#F5F2EA; z-index:2; pointer-events:none; }
@@ -501,7 +501,7 @@ header.top.solid .burger span { background:var(--text); }
 @media (max-width:1000px) { .plan-grid, .plan-top { grid-template-columns:1fr; } .capsule { position:static; border-radius:32px; padding:24px; } }
 @media (max-width:600px) { .ticket { grid-template-columns:1fr; } .t-stub { border-left:0; border-top:2px dashed #C9BFA9; flex-direction:row; flex-wrap:wrap; align-items:center; } .t-stub::before, .t-stub::after { display:none; } .t-bar { height:40px; margin-top:0; flex:1 0 100%; } .t-meta { grid-template-columns:1fr 1fr; } .q { min-height:0; } }
 /* ---------- Сияние: ночная сцена ---------- */
-.aur { min-height:100vh; }
+.aur { min-height:100vh; min-height:100svh; }
 .aur-wrap { display:grid !important; grid-template-columns:1.3fr 1fr !important; gap:56px !important; align-items:center !important; padding-top:120px !important; padding-bottom:120px !important; }
 .aur .mono, .come .mono, .diary .mono { font:500 12px/1.5 Inter, sans-serif; letter-spacing:.08em; text-transform:uppercase; color:#A9B2CC; }
 .aur-main h2 { font:400 clamp(48px,6.4vw,100px)/.98 'Tenor Sans' !important; margin:16px 0 0; }
@@ -1081,7 +1081,7 @@ function makeSky(canvas, opts = {}) {
     // огни города на ближних сопках
     if (dark > 0 && lights.length) { lights.forEach(l => { ctx.globalAlpha = dark * (.6 + .4 * Math.sin(t / 900 + l.p)); ctx.fillStyle = '#FFD79A'; ctx.fillRect(l.x, l.y, l.s, l.s); }); ctx.globalAlpha = 1; }
   }
-  resize(); window.addEventListener('resize', resize);
+  resize(); onResize(resize);
   return { draw, resize };
 }
 
@@ -1731,11 +1731,15 @@ document.querySelectorAll('.route').forEach(renderRoute);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lenis = null;
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+// 23.10: на айфоне при прокрутке прячется и появляется адресная строка — браузер шлёт 'resize' (меняется только высота).
+// Перерисовка неба и маршрутов на каждый такой resize дёргала прокрутку. На сенсорных экранах реагируем только на смену ширины (поворот).
+function onResize(fn) { let w = innerWidth; addEventListener('resize', () => { if (matchMedia('(pointer: coarse)').matches && innerWidth === w) return; w = innerWidth; fn(); }); }
 const track = (name, data) => { (window.dataLayer = window.dataLayer || []).push({ event: name, ...data }); };
 
 let skyProgress = 0;
 // Сутки: прокрутка = 24 часа, закреплено на 140% высоты экрана
-ScrollTrigger.create({ trigger: '#sky', start: 'top top', end: reduce ? '+=0' : '+=140%', pin: !reduce, scrub: true, onUpdate: st => { skyProgress = st.progress; document.getElementById('dayProgress').style.strokeDashoffset = 75.4 * (1 - st.progress); } });
+ScrollTrigger.create({ trigger: '#sky', start: 'top top', end: reduce ? '+=0' : '+=140%', pin: !reduce, anticipatePin: 1, scrub: true, onUpdate: st => { skyProgress = st.progress; document.getElementById('dayProgress').style.strokeDashoffset = 75.4 * (1 - st.progress); } });
 ScrollTrigger.create({ trigger: '#sky', start: 'bottom top+=80', end: 'max', onToggle: st => { document.getElementById('top').classList.toggle('solid', st.isActive); setDate(dateSel, true); } });
 
 // Манифест: слова проявляются (без JS текст виден целиком)
@@ -1752,7 +1756,7 @@ if (!reduce) document.querySelectorAll('.strip').forEach((s, i) => gsap.fromTo(s
 document.querySelectorAll('.route').forEach(el => {
   const relayout = () => layoutRoute(el);
   relayout(); el.querySelectorAll('img').forEach(i => i.addEventListener('load', relayout));
-  addEventListener('resize', relayout); document.fonts?.ready.then(relayout);
+  onResize(relayout); document.fonts?.ready.then(relayout);
   ScrollTrigger.create({ trigger: el.querySelector('.route-body'), start: 'top 70%', end: 'bottom 60%', scrub: true, onUpdate: st => drawRouteProgress(el, reduce ? 1 : st.progress), onRefresh: relayout });
 });
 
@@ -1806,7 +1810,7 @@ function intro() {
     .to('#introCap', { opacity: 1, duration: .3 }, '-=.3')
     .to(el, { opacity: 0, duration: .4, delay: .15 });
   const skip = () => tl.progress(1);
-  el.addEventListener('click', skip); addEventListener('keydown', skip, { once: true }); addEventListener('wheel', skip, { once: true, passive: true });
+  el.addEventListener('click', skip); el.addEventListener('touchstart', skip, { passive: true }); addEventListener('keydown', skip, { once: true }); addEventListener('wheel', skip, { once: true, passive: true });
 }
 
 // ================= Цикл отрисовки: рисуем только видимые canvas =================
@@ -1848,7 +1852,7 @@ function placeHint() {
   if (b.top > c.bottom || gap < h.offsetWidth + 64) { h.style.display = 'none'; return; }
   Object.assign(h.style, { left: `${c.right + gap / 2 - ui.left}px`, top: `${(b.top + b.height / 2 + c.top + c.height / 2) / 2 - ui.top}px`, bottom: 'auto', transform: 'translate(-50%, -50%)', visibility: '' });
 }
-addEventListener('resize', placeHint); document.fonts?.ready.then(placeHint); placeHint();
+onResize(placeHint); document.fonts?.ready.then(placeHint); placeHint();
 
 // 3.1: крупные цифры — по краю буквы, а не коробки. У Dela Gothic слева пустое поле: у «1» ≈0,13 em, у остальных ≈0,035 em (замер по снимкам).
 (() => {
