@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" data-theme="dusk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141d3a">
+  <meta name="description" content="Austin, from first light to last song. A seasonal guide to the lake, springs, live music and the Texas Hill Country, with an interactive daylight calendar and trip planner.">
+  <title>Austin. From first light to last song.</title>
+  <link rel="icon" href="assets/images/skyline.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/dela-gothic-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="original-design.css">
+  <link rel="stylesheet" href="austin.css">
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="austin.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#ring">Skip to the guide</a>
+<div class="intro" id="intro" aria-hidden="true"><svg viewBox="0 0 120 120" id="introMark"></svg><div class="cap" id="introCap">Austin · 30°16′ N</div></div>
+<header class="top" id="top"><div class="wrap">
+  <a class="brand" href="#sky" aria-label="Austin, back to the sky"><svg data-mark viewBox="0 0 120 120" aria-hidden="true"></svg><b>Austin</b></a>
+  <nav class="menu" aria-label="Main navigation"><a href="#ring">A year of light</a><a href="#city">The city</a><a href="#routes">Three routes</a><a href="#afterdark">After dark</a><a href="#plan" class="menu-cta">Make it your trip</a></nav>
+  <button class="burger" aria-label="Open navigation" aria-expanded="false" aria-controls="mnav"><span></span><span></span></button>
+</div><nav class="mnav" id="mnav" aria-label="Mobile navigation" hidden><a href="#plan" class="btn">Make it your trip</a><a href="#ring">A year of light</a><a href="#city">The city</a><a href="#routes">Three routes</a><a href="#afterdark">After dark</a><a href="#come">Good to know</a></nav></header>
+<a class="fab" href="#plan" id="fab">Make it your trip</a>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<main>
+<section class="sky-wrap" id="sky" aria-label="An illustrated day in Austin">
+  <canvas id="skyCanvas" aria-hidden="true"></canvas>
+  <h1 class="sr-only">Austin, Texas. From first light to last song.</h1>
+  <div class="hero-tag mono">Texas, on its own time <span>30°16′ N · 97°44′ W</span></div>
+  <div class="sky-ui"><div class="wrap">
+    <div>
+      <div class="place">A day in Austin · <span data-date-label></span></div>
+      <div class="clock num" data-clock>07:00</div>
+      <div class="sky-state" data-sky-state>First light on the water.</div>
+      <div class="sky-days pe"><button class="chip on" data-d="today">Today</button><button class="chip" data-d="03-20">Spring</button><button class="chip" data-d="06-21">Summer</button><button class="chip" data-d="10-15">Fall</button><button class="chip" data-d="12-21">Winter</button></div>
+      <div class="sim-label">Scroll to explore 24 hours · illustrated sky, not a weather forecast</div>
+    </div>
+    <div class="sky-side"><div>Hours to find your Austin</div><div class="hours num" data-hours></div><div data-countdown></div><a class="btn pe hero-cta" href="#plan">Make it your trip</a></div>
+  </div></div>
+  <div class="scroll-cue"><span>↓</span> First light to last song</div>
+</section>
+<section class="manifest"><div class="wrap">
+  <div class="eyebrow">A city with more than one tempo</div>
+  <p id="manifest">Austin starts on the water. Finds shade in the afternoon. Fills the streets when the sun slips away. Between a cold spring and a warm stage, there is <em>a whole different kind of day.</em></p>
+</div></section>
+<section class="strips" aria-label="Illustrated Austin scenes"><div class="strips-in" id="strips"></div><p class="visual-note">A sketchbook of Austin · illustrated previews</p></section>
+
+<section class="obs lace" id="ring"><div class="wrap">
+  <div class="obs-top"><div class="obs-title"><div class="mono">The daylight calendar · Austin, Texas</div><h2>A year, held in a circle</h2></div><p class="obs-lead">One ray for every day. Its length is the daylight you get. Pick a date, and let the sky, routes and trip planner follow.</p></div>
+  <div class="obs-grid">
+    <aside class="obs-side"><div class="mono">Your selected day</div><div class="obs-day" data-ring-date></div><div class="obs-hours num" data-ring-hours></div><div class="obs-state" data-ring-state></div><div class="ring-actions"><button class="btn" data-apply>Use this date</button><button class="btn ghost" data-today>Back to today</button></div><p class="ring-hint"><span class="ring-hint-dot"></span><span>Explore the circle. Arrow keys move a day; Enter applies.</span></p></aside>
+    <div class="ring-box"><svg id="ringSvg" viewBox="-450 -450 900 900" role="slider" tabindex="0" aria-label="Choose a day of the year" aria-valuemin="1" aria-valuemax="365"></svg><div class="ring-center"><div class="sun-ico" data-ring-ico></div></div></div>
+    <aside class="obs-side obs-events"><div class="mono">The shape of your season</div><h3 data-season-title></h3><p data-season-copy></p><ol data-events></ol></aside>
+  </div>
+  <div class="year-strip"><svg id="yearStrip" viewBox="0 0 732 90" preserveAspectRatio="none" aria-hidden="true"></svg><div class="year-axis mono" data-month-axis></div><div class="year-legend mono"><span><i class="lg-d"></i>longer days</span><span><i class="lg-n"></i>shorter days</span><span>Calculated daylight, not a temperature forecast</span></div></div>
+</div></section>
+
+<section class="plan lace" id="plan"><div class="wrap">
+  <div class="plan-top"><div><div class="mono">Your invitation · a little less planning</div><h2>Find your kind of Austin</h2></div><p class="lead">A few interests, a date, a pace. Get a day-by-day starting point with room for weather, a second taco, and the unexpected.</p></div>
+  <div class="plan-grid">
+    <div class="capsule">
+      <div class="q-dots" aria-label="Planning steps"><button class="q-dot on" data-go="0"><span>01</span>Your Austin</button><button class="q-dot" data-go="1"><span>02</span>When</button><button class="q-dot" data-go="2"><span>03</span>Your pace</button></div>
+      <div class="q" data-q="0"><h3 class="q-title">What calls you here?</h3><div class="q-groups" data-goals-opts></div></div>
+      <div class="q" data-q="1" hidden><h3 class="q-title">When are you coming?</h3><label class="field-label" for="pDate">Arrival date</label><div class="date-row"><input type="date" id="pDate"><button class="opt" data-best>A spring starting point</button></div><p class="date-src" data-date-src></p><ul class="fit" data-fit></ul></div>
+      <div class="q" data-q="2" hidden><h3 class="q-title">Leave a little breathing room.</h3><div class="days-pick"><div class="days-num num" data-days-num>4</div><div class="days-word">days</div></div><label class="sr-only" for="pDays">Trip length, two to seven days</label><input type="range" min="2" max="7" value="4" id="pDays"><div class="days-scale mono"><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div><label class="field-label" for="pTransport">Getting around</label><select id="pTransport"><option value="local">Walking, transit & occasional rideshare</option><option value="car">I have a car for day trips</option></select><label class="field-label" for="pPace">Your pace</label><select id="pPace"><option value="easy">Easy does it · two main stops</option><option value="full">Make a day of it · three main stops</option></select><p class="days-hint">This is a suggested itinerary. It does not reserve tickets, performances or park entry.</p></div>
+      <div class="q-nav"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next →</button></div>
+    </div>
+    <div class="result" id="result" data-result aria-live="polite" tabindex="-1"></div>
+  </div>
+</div></section>
+
+<section class="city" id="city"><div class="city-pin">
+  <div class="wrap city-head"><div><div class="eyebrow">Meet the city</div><h2>Water. Limestone.<br>A little amplifier hum.</h2></div><div class="city-arrows"><button class="opt" data-city-go="-1" aria-label="Previous city cards">←</button><button class="opt" data-city-go="1" aria-label="Next city cards">→</button></div></div>
+  <div class="city-track" id="cityTrack"></div>
+</div></section>
+
+<section class="routes" id="routes">
+  <div class="wrap routes-head"><div><div class="eyebrow">Three ways to spend a day</div><h2>Follow a different rhythm</h2></div><div class="tabs" role="tablist" aria-label="Choose a route"><button role="tab" id="tab-water" aria-controls="panel-water" class="tab on" aria-selected="true" data-tab="water"><b>Water & skyline</b><span>in the city · slow down</span></button><button role="tab" id="tab-culture" aria-controls="panel-culture" class="tab" aria-selected="false" data-tab="culture"><b>Streets & sound</b><span>in the city · tune in</span></button><button role="tab" id="tab-hills" aria-controls="panel-hills" class="tab" aria-selected="false" data-tab="hills"><b>Hill Country</b><span>a day out · breathe deeper</span></button></div></div>
+  <div class="route-sec" id="panel-water" role="tabpanel" aria-labelledby="tab-water" data-panel="water"><div class="route" data-route="water"></div></div>
+  <div class="route-sec" id="panel-culture" role="tabpanel" aria-labelledby="tab-culture" data-panel="culture" hidden><div class="route" data-route="culture"></div></div>
+  <div class="route-sec" id="panel-hills" role="tabpanel" aria-labelledby="tab-hills" data-panel="hills" hidden><div class="route" data-route="hills"></div></div>
+</section>
+
+<section class="aur" id="afterdark"><canvas id="nightCanvas" aria-hidden="true"></canvas><div class="wrap aur-wrap">
+  <div class="aur-main"><div class="mono">The city changes key</div><h2>When the sky<br>gives the stage away</h2><p class="aur-lead">Some evenings gather under a bridge. Others begin behind an unassuming door. In Austin, darkness is less an ending than a change of soundtrack.</p><ol class="aur-steps"><li><span class="num">01</span><b>Watch the bridge</b><p>Congress Avenue's bats are a seasonal possibility, not a nightly promise. Check local guidance before making an evening of it.</p></li><li><span class="num">02</span><b>Listen first</b><p>Look beyond a nightlife district. Pick a performance for the music, check the door policy, and leave time to actually stay.</p></li><li><span class="num">03</span><b>Make a way home</b><p>Check your return route before the last set. If you drive out of town, sunset does not extend park access.</p></li></ol></div>
+  <aside class="aur-panel"><div class="mono">Hours below civil twilight · mid-month</div><div class="chance" data-chance></div><div class="chance-m mono" data-month-axis></div><p class="aur-note">An astronomical illustration of darkness. Not a bat forecast, show schedule or cloud-cover prediction.</p><figure class="aur-photo"><img src="assets/images/bridge.svg" alt="Illustrated bats above a stylized Congress Avenue Bridge" loading="lazy" width="1200" height="800"><figcaption>Illustrated preview · real evenings are less predictable</figcaption></figure><a class="night-link" href="https://www.austintexas.org/things-to-do/outdoors/bat-watching/" target="_blank" rel="noopener">Bat-watching guidance ↗</a></aside>
+</div></section>
+
+<section class="come lace" id="come"><div class="wrap">
+  <div class="come-head"><div><div class="mono">A little practical magic</div><h2>Arrive curious. Come prepared.</h2></div><div class="board-clock mono" data-board-clock></div></div>
+  <div class="board" role="table" aria-label="Austin travel essentials"><div class="b-row b-th" role="row"><span role="columnheader">Your plan</span><span role="columnheader">Start here</span><span role="columnheader">Keep in mind</span><span role="columnheader">Official guide</span></div>
+    <div class="b-row" role="row"><span role="cell">Fly in</span><span role="cell">Austin-Bergstrom · AUS</span><span role="cell">Allow for traffic</span><a role="cell" class="ok" href="https://www.capmetro.org/airport" target="_blank" rel="noopener">Airport transit ↗</a></div>
+    <div class="b-row" role="row"><span role="cell">Take a dip</span><span role="cell">A designated swimming spot</span><span role="cell">Access & closures vary</span><a role="cell" class="ok" href="https://www.austintexas.gov/department/barton-springs-pool" target="_blank" rel="noopener">Pool information ↗</a></div>
+    <div class="b-row" role="row"><span role="cell">Go outdoors</span><span role="cell">Early starts & shade</span><span role="cell">Check heat & storms</span><a role="cell" class="warn" href="https://www.weather.gov/ewx/" target="_blank" rel="noopener">Weather alerts ↗</a></div>
+    <div class="b-row" role="row"><span role="cell">Leave the city</span><span role="cell">One park, a whole day</span><span role="cell">Reservations may apply</span><a role="cell" class="ok" href="https://tpwd.texas.gov/state-parks/" target="_blank" rel="noopener">State parks ↗</a></div>
+  </div>
+  <div class="come-grid"><div class="stay"><div class="mono">Choose a home base</div><dl><div><dt>Downtown</dt><dd>Central landmarks and the lake nearby; check the exact walking route.</dd></div><div><dt>South Congress</dt><dd>Street life and an easy starting point for exploring south of the river.</dd></div><div><dt>East Austin</dt><dd>Food, culture and music across a large area. Choose a specific neighborhood.</dd></div><div><dt>Quieter stays</dt><dd>Trade proximity for breathing room; include transport in your budget.</dd></div></dl></div><div class="pack"><div class="mono">A bag for your selected season</div><ul data-pack></ul></div></div>
+  <p class="prac-note">Outdoor plans depend on current conditions. Lady Bird Lake is not a swimming destination. Check the operator's access rules before visiting any pool, creek or park.</p>
+</div></section>
+
+<section class="diary lace"><div class="wrap"><div class="diary-head"><div><div class="mono">A week in daylight</div><h2 data-diary-title>The days keep changing.</h2></div><p class="who">Seven days from your selected date. A small reminder that a good trip is not measured only by how much you fit in.</p></div><div class="stories"><div class="reel story-today"><canvas id="reelSky" aria-hidden="true"></canvas><div class="in"><div class="mono">Your selected day</div><div class="num" data-reel></div><div data-reel-sub></div></div></div><div class="story-list" data-stories></div></div><blockquote>“Leave room for the thing you didn't plan.”<span>Our invitation to Austin</span></blockquote></div></section>
+</main>
+<footer><div class="wrap cols"><div><h4>Austin, by the hour</h4><p>An independent concept guide to a city of water, street life and live sound. Inspired by the Murmansk site designed by Alina Kruhlikova; adapted in English for Austin.</p><p>Daylight is calculated. Suggestions are editorial, not bookings. No live weather is shown.</p></div><div><h4>About this preview</h4><p>All landscape images are original, stylized placeholder illustrations—not location photographs. Official links are provided for current conditions; a completed source-verification review is pending.</p><a href="ASSET_CREDITS.md">Visual & software credits</a> · <a href="RESEARCH.md">Editorial notes</a></div><div><h4>Keep exploring</h4><ul><li><a href="https://www.austintexas.org/" target="_blank" rel="noopener">Visit Austin ↗</a></li><li><a href="https://www.austintexas.gov/" target="_blank" rel="noopener">City of Austin ↗</a></li><li><a href="#sky">Back to first light ↑</a></li></ul></div></div></footer>
+</body>
+</html>
