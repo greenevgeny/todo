@@ -1,152 +1,1863 @@
 <!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Независимый интерактивный путеводитель по Мурманску и Кольскому Северу.">
-  <title>Северный свет — Мурманск</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+<html lang="ru" data-theme="dusk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мурманск. Полярный календарь</title>
+<meta name="description" content="Сутки в Мурманске: живое небо, полярная ночь и полярный день, сияние и Териберка. Концепт-сайт от жительницы Мурманска.">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inter:wght@400;500;600;700&family=Tenor+Sans&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+:root { --sun:#F2A541; --aurora:#5BE3B0; --ink:#1A2238; --night:#0B1224; --paper:#F5F2EA; }
+[data-theme="day"]  { --bg:#F5F2EA; --surface:#FBF9F4; --surface-2:#EBE6D8; --line:#DDD6C4; --text:#1A2238; --muted:#4D5670; --accent:var(--sun); --accent-text:#8A4F0A; --on-accent:#1A2238; }
+[data-theme="dusk"] { --bg:#141D3A; --surface:#1C2748; --surface-2:#263460; --line:#33437A; --text:#F5F2EA; --muted:#BAC2DA; --accent:var(--sun); --accent-text:#F7C27A; --on-accent:#1A2238; }
+[data-theme="night"]{ --bg:#0B1224; --surface:#141D36; --surface-2:#1C2747; --line:#2B3A67; --text:#F5F2EA; --muted:#A9B2CC; --accent:var(--aurora); --accent-text:#7FF0C6; --on-accent:#0B1224; }
+* { box-sizing:border-box; }
+html.lenis, html.lenis body { height:auto; }
+body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 Inter, sans-serif; transition:background .8s, color .8s; overflow-x:hidden; }
+a { color:inherit; }
+.wrap { max-width:1280px; margin:0 auto; padding:0 32px; }
+.num { font-family:'Dela Gothic One', sans-serif; font-weight:400; font-variant-numeric:tabular-nums; }
+.t { font-family:'Tenor Sans', sans-serif; font-weight:400; }
+.eyebrow { font:600 12px/1.4 Inter; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:var(--on-accent); font:600 15px Inter; padding:14px 24px; border-radius:999px; text-decoration:none; border:0; cursor:pointer; }
+.chip { border:0; cursor:pointer; font:500 13px Inter; padding:8px 14px; border-radius:999px; background:rgb(255 255 255 / .1); color:#F5F2EA; backdrop-filter:blur(8px); box-shadow:inset 0 0 0 1px rgb(255 255 255 / .18); }
+.chip.on { background:#F5F2EA; color:#0B1224; }
+
+/* ---------- Заставка ---------- */
+.intro { position:fixed; inset:0; z-index:100; background:#05080F; display:grid; place-items:center; }
+.intro svg { width:min(60vw,420px); height:auto; overflow:visible; }
+.intro .cap { position:absolute; bottom:48px; left:0; right:0; text-align:center; color:#A9B2CC; font:500 13px Inter; letter-spacing:.14em; text-transform:uppercase; opacity:0; }
+
+/* ---------- Шапка ---------- */
+header.top { position:fixed; top:0; left:0; right:0; z-index:50; mix-blend-mode:normal; transition:background .4s; }
+header.top .wrap { display:flex; align-items:center; gap:24px; height:80px; }
+header.top.solid { background:color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter:blur(14px); }
+.brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:#F5F2EA; }
+header.top.solid .brand { color:var(--text); }
+.brand svg { width:56px; height:56px; }
+.brand b { font:400 24px 'Tenor Sans'; }
+nav.menu { margin-left:auto; display:flex; gap:28px; font-size:14px; font-weight:500; }
+nav.menu a { text-decoration:none; color:#F5F2EA; opacity:.85; }
+header.top.solid nav.menu a { color:var(--text); }
+
+/* ---------- 1. Сутки в Мурманске (живое небо) ---------- */
+.sky-wrap { position:relative; height:100vh; height:100svh; overflow:hidden; background:#05080F; }
+#skyCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+.sky-ui { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 0 48px; color:#F5F2EA; pointer-events:none; background:linear-gradient(0deg, rgb(5 8 15 / .55) 0%, rgb(5 8 15 / .25) 35%, rgb(5 8 15 / 0) 60%); }
+.sky-ui .wrap { width:100%; display:grid; grid-template-columns:1fr auto; gap:32px; align-items:end; }
+.sky-ui .pe { pointer-events:auto; }
+.sky-ui .place { font:500 13px Inter; letter-spacing:.14em; text-transform:uppercase; opacity:.8; }
+.sky-ui h1 { margin:8px 0 0; font:400 clamp(22px,2.2vw,30px)/1.2 'Tenor Sans'; text-shadow:0 2px 24px rgb(0 0 0 / .25); }
+.sky-ui h1.place { margin:0; font:500 13px/1.4 Inter; letter-spacing:.14em; text-transform:uppercase; opacity:.9; }
+.clock { font-size:clamp(56px,8vw,120px); line-height:.9; margin-top:12px; text-shadow:0 2px 32px rgb(0 0 0 / .2); }
+.sky-state { font-size:17px; margin-top:12px; opacity:.92; max-width:560px; }
+.sky-days { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+.sky-side { text-align:right; font-size:14px; opacity:.9; }
+.sky-side .hours { font-size:clamp(28px,3.4vw,44px); line-height:1; margin:8px 0; }
+.scroll-hint { display:inline-flex; align-items:center; gap:10px; margin-top:24px; font-size:13px; opacity:.8; }
+.scroll-hint svg { width:28px; height:28px; }
+
+/* ---------- 2. Манифест ---------- */
+.manifest { padding:200px 0 160px; }
+.manifest p { font:400 clamp(32px,4.6vw,68px)/1.2 'Tenor Sans'; margin:0; max-width:1100px; }
+.manifest .w { opacity:.14; transition:none; }
+.manifest em { font-style:normal; color:var(--accent-text); }
+
+/* ---------- Ленты фото ---------- */
+.strips { padding:24px 0 120px; overflow:hidden; }
+.strips-in { transform:rotate(-4deg); display:flex; flex-direction:column; gap:16px; margin:0 -10vw; }
+.strip { display:flex; gap:16px; width:max-content; will-change:transform; }
+.strip img { height:clamp(140px,18vw,240px); aspect-ratio:4/3; object-fit:cover; border-radius:16px; display:block; }
+.strip img:nth-child(3n) { aspect-ratio:3/4; }
+
+/* ---------- Кружево ягеля ---------- */
+.lace-band { position:relative; padding:140px 0; overflow:hidden; }
+.lace-band::before, .lace::before { content:""; position:absolute; inset:0; background-image:url("img/lichen-tile.webp"); background-size:520px; pointer-events:none; }
+[data-theme="day"] .lace::before { filter:invert(1) hue-rotate(180deg); }
+.lace-band::before { opacity:.9; -webkit-mask-image:radial-gradient(ellipse at center, transparent 22%, #000 70%); mask-image:radial-gradient(ellipse at center, transparent 22%, #000 70%); }
+.lace { position:relative; }
+.lace::before { opacity:.4; -webkit-mask-image:linear-gradient(90deg, #000, transparent 55%); mask-image:linear-gradient(90deg, #000, transparent 55%); }
+.lace > * , .lace-band > * { position:relative; }
+.lace-text { font:400 clamp(26px,3vw,44px)/1.3 'Tenor Sans'; max-width:900px; margin:16px auto 0; text-align:center; }
+.lace-band .eyebrow { text-align:center; }
+
+/* ---------- 3. Кольцо года ---------- */
+.ring-sec { padding:120px 0; }
+.ring-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:48px; align-items:center; }
+.ring-grid h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:16px 0 0; }
+.ring-grid .lead { color:var(--muted); font-size:18px; max-width:520px; margin:20px 0 0; }
+.ring-box { position:relative; aspect-ratio:1; max-width:640px; width:100%; justify-self:center; }
+.ring-box svg { width:100%; height:100%; overflow:visible; cursor:pointer; touch-action:manipulation; }
+.ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
+.ring-center .d { font:500 14px Inter; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+.ring-center .h { font-size:clamp(24px,2.8vw,40px); white-space:nowrap; line-height:1; margin:10px 0; }
+.ring-center .s { font-size:15px; color:var(--muted); max-width:220px; }
+.ring-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:32px; }
+.ring-actions .btn.ghost { background:transparent; color:var(--text); box-shadow:inset 0 0 0 1px var(--line); }
+
+/* ---------- 4. Город: горизонтальная лента ---------- */
+.city { position:relative; }
+.city-pin { height:100vh; height:100svh; display:flex; flex-direction:column; justify-content:center; overflow:hidden; padding-top:80px; }
+.city-head { width:100%; display:flex; justify-content:space-between; align-items:end; gap:32px; margin-bottom:32px; }
+.city-head h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; max-width:760px; }
+.city-track { display:flex; gap:32px; padding-left:max(32px, calc((100vw - 1280px) / 2 + 32px)); will-change:transform; }
+.place-card { flex:none; width:min(460px,78vw); }
+.place-card .ph { height:clamp(220px, calc(100vh - 460px), 480px); border-radius:24px; background:var(--surface-2) center/cover no-repeat; position:relative; overflow:hidden; }
+.place-card .ph.empty { display:grid; place-items:center; color:var(--muted); font-size:14px; }
+.place-card .ai-tag { position:absolute; right:12px; top:12px; font:600 10px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:999px; background:rgb(11 18 36 / .6); color:#F5F2EA; }
+.place-card .ph-r .n { left:auto; right:20px; top:auto; bottom:16px; }
+.place-card .n { position:absolute; left:20px; top:16px; font-size:56px; line-height:1; color:#F5F2EA; text-shadow:0 2px 16px rgb(0 0 0 / .3); }
+.place-card h3 { font:400 28px/1.2 'Tenor Sans'; margin:20px 0 8px; color:var(--text); }
+.place-card p { margin:0; color:var(--muted); font-size:15px; max-width:420px; }
+
+/* ---------- 5. Дорога ---------- */
+.road { padding:160px 0; }
+.road-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+.road h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; }
+.km { font-size:clamp(80px,12vw,180px); line-height:1; margin-top:24px; color:var(--accent-text); }
+.km small { font:400 .28em 'Tenor Sans'; color:var(--muted); margin-left:12px; }
+.road-note { color:var(--muted); max-width:460px; margin-top:16px; }
+.road svg { width:100%; height:auto; overflow:visible; }
+
+/* ---------- 6. Териберка: раскрытие ---------- */
+.teri-pin { height:100vh; height:100svh; position:relative; overflow:hidden; }
+.teri-img { position:absolute; inset:0; background:center/cover no-repeat; clip-path:inset(28% 34% 28% 34% round 24px); will-change:clip-path; }
+.teri-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgb(5 8 15 / .2), rgb(5 8 15 / .7)); }
+.teri-title { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#F5F2EA; z-index:2; pointer-events:none; }
+.teri-title h2 { font:400 clamp(56px,11vw,180px)/.95 'Tenor Sans'; margin:0; letter-spacing:-.01em; }
+.teri-title p { font-size:18px; margin:20px 0 0; opacity:.9; }
+.teri-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:24px; padding:120px 0; }
+.tc { position:relative; }
+.tc .ph { border-radius:24px; overflow:hidden; background:var(--surface-2); }
+.tc .ph div { width:100%; height:120%; background:center/cover no-repeat; will-change:transform; }
+.tc .ph.empty { display:grid; place-items:center; color:var(--muted); font-size:14px; }
+.tc h3 { font:400 26px/1.2 'Tenor Sans'; margin:20px 0 8px; }
+.tc p { margin:0; color:var(--muted); font-size:15px; max-width:440px; }
+.tc.a { grid-column:1 / span 7; } .tc.a .ph { aspect-ratio:4/3; }
+.tc.b { grid-column:9 / span 4; margin-top:160px; } .tc.b .ph { aspect-ratio:3/4; }
+.tc.c { grid-column:2 / span 4; } .tc.c .ph { aspect-ratio:3/4; }
+.tc.d { grid-column:7 / span 6; margin-top:120px; } .tc.d .ph { aspect-ratio:4/3; }
+.tc.e { grid-column:4 / span 6; } .tc.e .ph { aspect-ratio:16/9; }
+
+/* ---------- 7. Сияние ---------- */
+.aur { position:relative; min-height:110vh; overflow:hidden; background:#05080F; color:#F5F2EA; display:flex; align-items:center; }
+#auroraSky { position:absolute; inset:0; width:100%; height:100%; }
+.aur .wrap { position:relative; width:100%; display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:end; padding-top:120px; padding-bottom:120px; }
+.aur h2 { font:400 clamp(44px,6vw,96px)/1 'Tenor Sans'; margin:12px 0 0; }
+.aur .eyebrow { color:#A9B2CC; }
+.aur p { color:#C9D0E4; font-size:18px; max-width:520px; }
+.chance { display:grid; grid-template-columns:repeat(12,1fr); gap:6px; align-items:end; height:140px; }
+.chance div { border-radius:6px 6px 0 0; background:linear-gradient(0deg, #5BE3B0, rgb(91 227 176 / .2)); }
+.chance div.cur { box-shadow:0 0 0 2px #F5F2EA; }
+.chance-m { display:grid; grid-template-columns:repeat(12,1fr); gap:6px; font-size:11px; color:#A9B2CC; text-align:center; margin-top:8px; }
+.tips { margin:24px 0 0; padding-left:20px; color:#C9D0E4; }
+.tips li { margin:6px 0; }
+
+/* ---------- 8. Приехать и дневник ---------- */
+.come { padding:120px 0; }
+.come h2, .diary h2, .plan h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; max-width:900px; }
+
+.aur-photo { margin:28px 0 0; max-width:520px; }
+.aur-photo img { width:100%; aspect-ratio:2/1; object-fit:cover; border-radius:20px; display:block; }
+.aur-photo figcaption { font-size:12px; color:#A9B2CC; margin-top:8px; }
+.aur-photo a, footer a { color:inherit; }
+
+/* ---------- Маршруты: вкладки ---------- */
+.routes { position:relative; padding-top:120px; }
+.routes .anchor { position:absolute; top:0; }
+.routes-head { display:flex; justify-content:space-between; align-items:end; gap:32px; flex-wrap:wrap; margin-bottom:48px; }
+.routes-head h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; }
+.tabs { display:flex; gap:8px; background:var(--surface); padding:6px; border-radius:20px; box-shadow:inset 0 0 0 1px var(--line); }
+.tab { border:0; background:transparent; color:var(--text); cursor:pointer; text-align:left; padding:12px 18px; border-radius:14px; display:flex; flex-direction:column; gap:2px; font:inherit; transition:background .2s; }
+.tab b { font:400 20px 'Tenor Sans'; }
+.tab span { font-size:13px; color:var(--muted); }
+.tab:hover { background:var(--surface-2); }
+.tab.on { background:var(--text); color:var(--bg); }
+.tab.on span { color:color-mix(in srgb, var(--bg) 70%, transparent); }
+@media (max-width:700px) { .tabs { width:100%; } .tab { flex:1; padding:10px; } .tab b { font-size:16px; } .tab span { font-size:12px; } }
+/* ---------- Маршрут-тропа (раскладка «Рыбачий») ---------- */
+.route { position:relative; padding:0; overflow:hidden; }
+.route-sec { position:relative; }
+.route-deco { position:absolute; pointer-events:none; opacity:.8; z-index:3; -webkit-mask-image:radial-gradient(closest-side, #000 60%, transparent); mask-image:radial-gradient(closest-side, #000 60%, transparent); }
+.route-deco.tl { left:-60px; top:40px; width:min(30vw,380px); }
+.route-deco.br { right:-40px; bottom:300px; width:min(22vw,280px); }
+[data-theme="day"] .route-deco { filter:invert(1) brightness(.6); opacity:.4; }
+.route-hero { position:relative; min-height:clamp(380px,62vh,600px); display:flex; align-items:flex-end; }
+.route-hero .bg { position:absolute; inset:0 0 0 30%; background:center/cover no-repeat; -webkit-mask-image:linear-gradient(90deg, transparent, #000 40%), linear-gradient(0deg, transparent, #000 30%); mask-image:linear-gradient(90deg, transparent, #000 40%); }
+.route-hero .bg::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg, var(--bg), transparent 45%); }
+.route-head { position:relative; z-index:4; padding-bottom:40px; width:100%; }
+.route-head h2 { font:400 clamp(52px,7vw,104px)/.95 'Tenor Sans'; margin:12px 0 8px; }
+.route-head .sub { font:400 clamp(20px,1.8vw,26px)/1.3 'Tenor Sans'; }
+.route-head .desc { color:var(--text); opacity:.8; max-width:440px; margin:16px 0 0; }
+.route-head .meta { font:600 12px Inter; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); margin-top:16px; }
+.route-dist { display:flex; align-items:center; gap:12px; font-size:15px; margin-top:24px; }
+.route-dist .line { width:min(200px,30vw); border-top:2px dashed var(--accent); position:relative; }
+.route-dist .line span { position:absolute; left:50%; top:-24px; transform:translateX(-50%); font-size:12px; color:var(--muted); white-space:nowrap; }
+.route-dist b { font-weight:600; }
+.route-body { position:relative; }
+.route-path { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:3; overflow:visible; }
+.stop { position:relative; height:clamp(220px,25vw,360px); display:flex; align-items:center; }
+.stop + .stop { margin-top:-40px; }
+.stop .bg { position:absolute; inset:0; background:center/cover no-repeat; filter:saturate(.85) contrast(1.06) brightness(.82);
+  -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 72px, #000 calc(100% - 72px), transparent 100%); mask-image:linear-gradient(180deg, transparent 0, #000 72px, #000 calc(100% - 72px), transparent 100%); }
+.stop .bg::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgb(242 165 65 / .08), rgb(20 29 58 / .25)); }
+.stop .bg { left:0; } .stop .shade { position:absolute; inset:0; background:linear-gradient(90deg, rgb(11 18 36 / .45) 0%, rgb(11 18 36 / .2) 40%, transparent 70%); }
+.stop .txt { position:relative; z-index:4; width:min(260px,70vw); margin-left:calc(var(--tx, 260px)); text-shadow:0 1px 12px rgb(0 0 0 / .65); }
+.stop .txt::before { content:""; position:absolute; inset:-40px -60px -40px -50px; z-index:-1; background:radial-gradient(closest-side, rgb(11 18 36 / .6), transparent); pointer-events:none; }
+.stop h3 { font-size:clamp(22px,1.9vw,28px) !important; }
+.stop p { font-size:14px !important; }
+.stop .n { font:500 15px Inter; color:var(--accent-text); }
+.stop .n span { color:var(--muted); }
+.stop h3 { font:400 clamp(26px,2.4vw,34px)/1.15 'Tenor Sans'; margin:6px 0 10px; }
+.stop p { margin:0; color:var(--text); opacity:.85; font-size:15px; }
+.stop .dash { width:28px; border-top:2px solid var(--accent); margin-top:14px; }
+.stop .credit { position:absolute; right:16px; bottom:84px; font-size:11px; opacity:.55; z-index:4; }
+.stop .ai { position:absolute; right:16px; top:84px; z-index:4; font:600 11px Inter; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:rgb(11 18 36 / .6); color:#F5F2EA; }
+.dot .sun { fill:var(--bg); stroke:var(--c, var(--accent)); stroke-width:3; transition:fill .4s; }
+.dot .sun-glow { fill:var(--c, var(--accent)); opacity:0; transition:opacity .4s; }
+.dot.on .sun { fill:var(--c, var(--accent)); }
+.dot.on .sun-glow { opacity:.28; }
+.rp-line { filter:drop-shadow(0 0 6px rgb(255 214 150 / .55)); }
+.stop .lt { display:inline-flex; align-items:center; gap:8px; margin-top:6px; font:600 12px Inter; letter-spacing:.06em; text-transform:uppercase; color:var(--c, var(--accent-text)); }
+.stop .lt::before { content:""; width:10px; height:10px; border-radius:50%; background:var(--c, var(--accent)); box-shadow:0 0 10px var(--c, var(--accent)); }
+.stop .lt b { font-variant-numeric:tabular-nums; }
+[data-theme="day"] .stop .lt { color:var(--accent-text); }
+.route-next { position:relative; height:340px; margin-top:-72px; display:flex; align-items:center; overflow:hidden; }
+.route-next .bg { position:absolute; inset:0; background:center 20%/cover no-repeat; -webkit-mask-image:linear-gradient(180deg, transparent, #000 72px); mask-image:linear-gradient(180deg, transparent, #000 72px); }
+.route-next .bg::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg, var(--bg) 10%, transparent 70%); }
+.route-next .txt { position:relative; z-index:2; margin-left:max(32px, calc((100vw - 1280px) / 2 + 32px)); }
+.route-next h3 { font:400 clamp(26px,2.6vw,36px)/1.2 'Tenor Sans'; margin:8px 0 16px; max-width:420px; }
+.route-next a { font:600 14px Inter; text-decoration:none; color:var(--text); }
+@media (max-width:900px) {
+  .route-hero .bg { inset:0; opacity:.45; }
+  .stop .txt { margin:0 16px 0 56px; } .stop .bg { left:0; }
+  .stop .shade { background:linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 60%, color-mix(in srgb, var(--bg) 40%, transparent) 100%); }
+  .route-deco.br { display:none; }
+}
+/* ---------- Три луча ---------- */
+.rays { padding:120px 0; }
+.rays h2 { font:400 clamp(36px,4vw,60px)/1.08 'Tenor Sans'; margin:12px 0 0; }
+.rays .lead { color:var(--muted); font-size:18px; max-width:640px; margin:20px 0 0; }
+.rays-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:48px; }
+.ray-card { background:var(--surface); border-radius:24px; overflow:hidden; }
+.ray-card .ph { aspect-ratio:16/9; background:var(--surface-2) center/cover no-repeat; }
+.ray-card .ph.empty { display:grid; place-items:center; color:var(--muted); font-size:14px; }
+.ray-card .body { padding:24px 28px 28px; }
+.ray-meta { font:600 12px Inter; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); }
+.ray-card h3 { font:400 28px/1.2 'Tenor Sans'; margin:10px 0 10px; }
+.ray-card p { margin:0; color:var(--muted); font-size:15px; }
+@media (max-width:900px) { .rays-grid { grid-template-columns:1fr; } }
+
+/* ---------- Планировщик ---------- */
+.plan { padding:140px 0; }
+.plan .lead { color:var(--muted); font-size:18px; max-width:640px; margin:20px 0 0; }
+.plan-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:48px; margin-top:56px; align-items:start; }
+.step { margin-bottom:40px; }
+.step h3 { display:flex; align-items:center; gap:12px; font:400 26px/1.2 'Tenor Sans'; margin:0; }
+.step h3 .num { display:inline-grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-size:16px; flex:none; }
+.opts { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.opt { border:0; cursor:pointer; font:500 15px Inter; color:var(--text); background:var(--surface); box-shadow:inset 0 0 0 1px var(--line); padding:12px 18px; border-radius:999px; transition:background .2s, box-shadow .2s; }
+.opt:hover { box-shadow:inset 0 0 0 1px var(--accent); }
+.opt.on { background:var(--accent); color:var(--on-accent); box-shadow:none; }
+.date-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; align-items:center; }
+.date-row input { font:500 16px Inter; color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color-scheme:light dark; }
+.fit { list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; font-size:15px; }
+.fit li { display:flex; gap:10px; align-items:flex-start; }
+.fit li::before { content:""; flex:none; width:10px; height:10px; border-radius:50%; margin-top:7px; background:var(--muted); }
+.fit li.ok::before { background:#5BE3B0; } .fit li.maybe::before { background:#F2A541; } .fit li.no::before { background:#E06A5A; }
+.fit li span { color:var(--muted); }
+.result { position:sticky; top:100px; background:var(--surface); border-radius:24px; padding:32px; box-shadow:0 0 0 1px var(--line); }
+.result .r-eyebrow { font:600 12px Inter; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.result h3 { font:400 32px/1.15 'Tenor Sans'; margin:8px 0 4px; }
+.result .r-sub { color:var(--muted); font-size:15px; }
+.day { padding:20px 0 4px; border-top:1px solid var(--line); margin-top:20px; }
+.day-head { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+.day-head b { font:400 21px 'Tenor Sans'; }
+.day-head span { font-size:13px; color:var(--muted); white-space:nowrap; }
+.day ul { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; font-size:15px; }
+.day li { display:grid; grid-template-columns:64px 1fr; gap:12px; }
+.day li .tm { white-space:nowrap; }
+.day li .tm { color:var(--accent-text); font-variant-numeric:tabular-nums; font-weight:600; }
+.day li.warn { color:var(--muted); }
+.r-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:28px; }
+.r-actions .btn.ghost { background:transparent; color:var(--text); box-shadow:inset 0 0 0 1px var(--line); }
+.r-next { margin-top:28px; padding-top:20px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:8px; }
+.r-next-row { display:flex; flex-direction:column; gap:2px; text-align:left; text-decoration:none; color:var(--text); background:var(--surface-2); border:0; border-radius:14px; padding:14px 16px; font:inherit; cursor:pointer; }
+.r-next-row:hover { box-shadow:inset 0 0 0 1px var(--accent); }
+.r-next-row b { font-weight:600; font-size:15px; } .r-next-row span { font-size:13px; color:var(--muted); }
+header.top.menu-open { background:var(--bg); }
+.r-toast { font-size:13px; color:var(--accent-text); margin-top:10px; min-height:18px; }
+.prac { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:48px; }
+.prac-col { background:var(--surface); border-radius:20px; padding:24px; }
+.prac-col h3 { font:400 22px 'Tenor Sans'; margin:0 0 12px; }
+.prac-col p, .prac-col ul { margin:0; color:var(--muted); font-size:15px; }
+.prac-col ul { padding-left:18px; } .prac-col li { margin:4px 0; }
+.prac-col b { color:var(--text); font-weight:600; }
+.prac-note { font-size:13px; color:var(--muted); margin-top:20px; }
+.hero-cta { margin-top:20px; }
+@media (max-width:576px) { .clock { font-size:56px; } }
+nav.menu .menu-cta { opacity:1; padding:8px 16px; border-radius:999px; background:var(--accent); color:var(--on-accent); }
+header.top:not(.solid) nav.menu .menu-cta { color:var(--on-accent); }
+@media (max-width:1100px) { .prac { grid-template-columns:1fr 1fr; } }
+@media (max-width:900px) { .plan-grid { grid-template-columns:1fr; } .result { position:static; } .prac { grid-template-columns:1fr; } .result { padding:24px; } }
+
+/* ---------- Подсказка кольца ---------- */
+.ring-hint { display:inline-flex; align-items:center; gap:10px; margin-top:20px; font-size:14px; color:var(--accent-text); }
+.ring-hint-dot { width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 var(--accent); animation:pulse 1.8s infinite; }
+@keyframes pulse { 0% { box-shadow:0 0 0 0 rgb(242 165 65 / .6); } 100% { box-shadow:0 0 0 14px rgb(242 165 65 / 0); } }
+.ring-handle { animation:pulseR 1.8s infinite; transform-box:fill-box; transform-origin:center; }
+@keyframes pulseR { 0%,100% { transform:scale(1); } 50% { transform:scale(1.35); } }
+.goals { margin-top:56px; border-top:1px solid var(--line); }
+.goal { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:24px; padding:28px 0; border-bottom:1px solid var(--line); align-items:baseline; }
+.goal .g { font:400 30px/1.2 'Tenor Sans'; }
+.goal .w { color:var(--muted); }
+.goal .w b { color:var(--accent-text); font-weight:600; }
+.goal .k { color:var(--muted); font-size:15px; }
+.diary { padding:120px 0 160px; }
+.diary-grid { display:grid; grid-template-columns:360px 1fr; gap:64px; align-items:center; margin-top:56px; }
+.reel { aspect-ratio:9/16; border-radius:28px; overflow:hidden; position:relative; background:#05080F; color:#F5F2EA; }
+.reel canvas { position:absolute; inset:0; width:100%; height:100%; }
+.reel .in { position:absolute; left:24px; right:24px; bottom:28px; }
+.reel .in .num { font-size:52px; line-height:1; margin-top:8px; }
+.diary blockquote { margin:0; font:400 clamp(24px,2.6vw,36px)/1.35 'Tenor Sans'; }
+.diary .who { margin-top:20px; color:var(--muted); }
+
+footer { padding:64px 0 48px; border-top:1px solid var(--line); font-size:14px; color:var(--muted); }
+footer .cols { display:grid; grid-template-columns:1fr 1.4fr; gap:48px; }
+footer h4 { margin:0 0 12px; font:600 12px Inter; letter-spacing:.1em; text-transform:uppercase; color:var(--text); }
+footer ul { margin:0; padding:0; list-style:none; columns:2; column-gap:24px; }
+footer li { margin:0 0 6px; font-size:12px; break-inside:avoid; }
+
+.reveal { opacity:0; transform:translateY(40px); }
+/* Плёночное зерно поверх всего — едва заметно */
+.sky-wrap::after, .aur::after, .route-next::after { content:""; position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.07; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.sky-ui { z-index:2; } .aur .wrap { z-index:2; }
+body::after { display:none; content:""; position:fixed; inset:-50%; z-index:90; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation:grain 1s steps(4) infinite; }
+@keyframes grain { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(-2%,-1%)} 100%{transform:translate(0,0)} }
+@media (prefers-reduced-motion: reduce) { body::after { animation:none; } }
+
+@media (max-width:1100px) { nav.menu { display:none; } }
+@media (max-width:900px) {
+  .ring-grid, .road-grid, .aur .wrap, .diary-grid { grid-template-columns:1fr; }
+  .sky-ui .wrap { grid-template-columns:1fr; }
+  .sky-side { text-align:left; }
+  .goal { grid-template-columns:1fr; gap:6px; }
+  .tc.a, .tc.b, .tc.c, .tc.d, .tc.e { grid-column:1 / -1; margin-top:0; }
+  .reel { max-width:340px; }
+  footer .cols { grid-template-columns:1fr; } footer ul { columns:1; }
+}
+@media (max-width:576px) {
+  .wrap { padding:0 16px; }
+  header.top .wrap { height:64px; }
+  .brand svg { width:44px; height:44px; }
+  .place-card .ph { height:56vw; max-height:320px; }
+  .manifest { padding:120px 0 96px; }
+}
+@media (prefers-reduced-motion: reduce) { .reveal { opacity:1; transform:none; } .manifest .w { opacity:1; } }
+/* ---------- Доступность, меню, плавающая кнопка ---------- */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+:focus-visible { outline:3px solid var(--accent); outline-offset:3px; border-radius:6px; }
+.ring-box svg:focus-visible { outline-offset:-20px; border-radius:50%; }
+.burger { display:none; margin-left:auto; width:44px; height:44px; border:0; border-radius:12px; background:rgb(255 255 255 / .1); cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:6px; }
+.burger span { width:20px; height:2px; background:#F5F2EA; border-radius:2px; transition:transform .25s; }
+header.top.solid .burger span { background:var(--text); }
+.burger[aria-expanded="true"] span:first-child { transform:translateY(4px) rotate(45deg); }
+.burger[aria-expanded="true"] span:last-child { transform:translateY(-4px) rotate(-45deg); }
+.mnav { display:flex; flex-direction:column; gap:4px; padding:12px 16px 24px; background:var(--bg); border-bottom:1px solid var(--line); }
+.mnav[hidden] { display:none; }
+.mnav a { padding:12px 4px; text-decoration:none; font-size:18px; border-bottom:1px solid var(--line); }
+.mnav a.btn { justify-content:center; border:0; margin-bottom:8px; }
+.fab { position:fixed; right:24px; bottom:24px; z-index:60; display:none; background:var(--accent); color:var(--on-accent); font:600 15px Inter; padding:14px 22px; border-radius:999px; text-decoration:none; box-shadow:0 8px 24px rgb(0 0 0 / .3); }
+.fab.on { display:inline-flex; }
+.toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%, 20px); z-index:70; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; background:var(--surface-2); color:var(--text); box-shadow:0 0 0 1px var(--line), 0 10px 30px rgb(0 0 0 / .3); padding:14px 20px; border-radius:16px; display:flex; gap:16px; align-items:center; font-size:15px; max-width:calc(100vw - 32px); }
+.toast.on { opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
+.toast a { color:var(--accent-text); font-weight:600; white-space:nowrap; text-decoration:none; }
+.h-touch { display:none; }
+@media (hover:none) { .h-mouse { display:none; } .h-touch { display:inline; } }
+.city-arrows { display:flex; gap:8px; }
+.city-pin { height:auto !important; padding:120px 0; }
+.city-track { overflow-x:auto; scroll-snap-type:x mandatory; scroll-padding-left:max(32px, calc((100vw - 1280px) / 2 + 32px)); padding-bottom:16px; padding-right:32px; scrollbar-width:thin; }
+.place-card { scroll-snap-align:start; }
+.place-card .ph { height:clamp(240px, 46vh, 460px); }
+.plan-jump { display:none; }
+.date-src { font-size:13px; color:var(--muted); margin-top:8px; }
+@media (max-width:1100px) { .burger { display:flex; } }
+@media (max-width:900px) {
+  .fab { left:16px; right:16px; bottom:16px; justify-content:center; }
+  .plan-jump { display:flex; justify-content:space-between; align-items:center; gap:12px; position:sticky; bottom:16px; z-index:5; margin-top:8px; background:var(--surface-2); box-shadow:0 0 0 1px var(--line); border-radius:16px; padding:12px 16px; font-size:15px; }
+  .plan-jump a { color:var(--accent-text); font-weight:600; text-decoration:none; white-space:nowrap; }
+  .city-arrows { display:none; }
+  .toast { bottom:84px; }
+}/* ---------- Страница = один день: тон фона по разделам (в тёмных темах) ---------- */
+:root:not([data-theme="day"]) .manifest { background:linear-gradient(180deg, #0B1224, #1A2046); }
+:root:not([data-theme="day"]) .strips { background:linear-gradient(180deg, #1A2046, #2A2550); }          /* рассвет: фиолетовый */
+
+:root:not([data-theme="day"]) .plan { background:linear-gradient(180deg, #243058, #1F3560); }            /* день: синий светлее */
+:root:not([data-theme="day"]) .city { background:linear-gradient(180deg, #1F3560, #2B2F52); }
+:root:not([data-theme="day"]) .routes { background:linear-gradient(180deg, #2B2F52, #262B4F 260px, #20254A); } /* золотой час — только в фото; фон в общей сине-сиреневой гамме */
+:root:not([data-theme="day"]) .come { background:linear-gradient(180deg, #070B18, #141C3A); }            /* после ночи — утро */
+:root:not([data-theme="day"]) .diary { background:linear-gradient(180deg, #141C3A, #1B2448); }
+:root:not([data-theme="day"]) footer { background:#1B2448; }
+.aur { background:#05080F; }                                                                              /* ночь — самый тёмный экран */
+
+/* ---------- Оранжевый — только солнце и главное действие ---------- */
+.opt.on { background:var(--text); color:var(--bg); }
+.step h3 .num { background:transparent; color:var(--text); box-shadow:inset 0 0 0 1.5px var(--text); }
+.route-head .meta, .ray-meta { color:var(--muted); }
+.stop .n { color:var(--text); }
+.stop .dash, .route-dist .line { border-color:color-mix(in srgb, var(--text) 45%, transparent); }
+.day li .tm { color:var(--text); }
+.ring-hint { color:var(--muted); }
+.r-actions .btn.ghost, .ring-actions .btn.ghost { color:var(--text); }
+/* ---------- Обсерватория (светлая сцена) ---------- */
+.obs { --bg:#EEE8DC; --surface:#E5DECF; --surface-2:#DBD2BF; --line:#C9BFA9; --text:#1E2235; --muted:#5C574E; --accent:#E08A1E; --accent-text:#8A4F0A; --on-accent:#1E2235;
+  background:radial-gradient(ellipse at 50% 40%, #F6F1E7 0%, #EEE8DC 55%, #E4DCCB 100%); color:var(--text); padding:120px 0 96px; position:relative; }
+.obs .mono { font:500 12px/1.5 Inter, sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.obs-top { display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:end; }
+.obs-title h2 { font:400 clamp(40px,5vw,76px)/1.02 'Tenor Sans'; margin:14px 0 0; }
+.obs-lead { color:var(--muted); font-size:17px; margin:0; max-width:460px; }
+.obs-grid { display:grid; grid-template-columns:240px 1fr 260px; gap:24px; align-items:center; margin-top:40px; }
+.obs-day { font:400 28px 'Tenor Sans'; margin-top:10px; }
+.obs-hours { font-size:clamp(28px,3vw,40px); margin:8px 0 6px; white-space:nowrap; }
+.obs-state { color:var(--muted); font-size:15px; }
+.obs .ring-actions { flex-direction:column; align-items:flex-start; gap:8px; margin-top:24px; }
+.obs .ring-hint { color:var(--muted); font-size:13px; }
+.obs .ring-box { max-width:640px; }
+.obs .ring-center .sun-ico svg { width:120px; height:120px; }
+.obs-events ol { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; }
+.obs-events li button { width:100%; text-align:left; border:0; background:transparent; font:inherit; color:var(--text); cursor:pointer; padding:12px 0; border-bottom:1px solid var(--line); display:grid; gap:2px; }
+.obs-events li button:hover b { text-decoration:underline; }
+.obs-events li b { font:400 19px 'Tenor Sans'; }
+.obs-events li span { font:500 12px Inter, sans-serif; color:var(--muted); letter-spacing:.04em; }
+.obs-events li em { font-style:normal; font:500 13px Inter, sans-serif; color:var(--accent-text); }
+.year-strip { margin-top:48px; }
+.year-strip svg { width:100%; height:90px; display:block; cursor:pointer; touch-action:pan-y; }
+.year-axis { display:grid; grid-template-columns:repeat(12,1fr); margin-top:8px; }
+.year-legend { display:flex; gap:24px; flex-wrap:wrap; margin-top:12px; }
+.year-legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.lg-n { background:#3A3F5C; } .lg-d { background:#F2A541; }
+@media (max-width:1100px) { .obs-grid { grid-template-columns:1fr; } .obs .ring-box { order:-1; max-width:520px; } .obs-top { grid-template-columns:1fr; } }
+@media (max-width:700px) { .year-axis span:nth-child(even) { visibility:hidden; } .obs { padding:80px 0 64px; } }
+/* ---------- Планировщик: капсула + билет ---------- */
+.plan { padding:120px 0; }
+.plan .mono, .capsule .mono, .ticket .mono, .r-next .mono { font:500 12px/1.5 Inter, sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.plan-top { display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:end; }
+.plan-top h2 { margin-top:14px !important; }
+.plan-top .lead { margin:0 !important; }
+.plan-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:40px; margin-top:48px; align-items:start; }
+.capsule { background:color-mix(in srgb, var(--text) 6%, transparent); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent); border-radius:48px; padding:32px 36px 36px; position:sticky; top:100px; backdrop-filter:blur(6px); }
+.q-dots { display:flex; gap:6px; margin-bottom:28px; }
+.q-dot { flex:1; border:0; background:transparent; color:var(--muted); font:500 13px Inter; text-align:left; cursor:pointer; padding:10px 0 0; border-top:2px solid color-mix(in srgb, var(--text) 18%, transparent); display:flex; gap:8px; align-items:center; }
+.q-dot span { font:500 12px Inter, sans-serif; }
+.q-dot.on { color:var(--text); border-top-color:var(--text); }
+.q-dot.done { color:var(--text); border-top-color:color-mix(in srgb, var(--text) 55%, transparent); }
+.q-title { font:400 clamp(28px,2.6vw,38px)/1.1 'Tenor Sans'; margin:0 0 24px; }
+.q { min-height:300px; }
+.q-group + .q-group { margin-top:20px; }
+.q-group .opts { margin-top:10px; }
+.capsule .opt { padding:12px 18px; font-size:15px; }
+.days-pick { display:flex; align-items:baseline; gap:12px; }
+.days-num { font-size:96px; line-height:1; }
+.days-word { font:400 32px 'Tenor Sans'; }
+#pDays { width:100%; margin-top:24px; accent-color:var(--text); height:28px; }
+.days-scale { display:flex; justify-content:space-between; padding:0 6px; }
+.days-hint { color:var(--muted); margin:20px 0 0; }
+.q-nav { display:flex; justify-content:space-between; margin-top:28px; }
+.q-nav .btn.ghost { background:transparent; color:var(--text); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--text) 30%, transparent); }
+.result { position:static !important; background:none !important; box-shadow:none !important; padding:0 !important; }
+/* Билет */
+.ticket { display:grid; grid-template-columns:1fr 150px; background:#F4EEE2; color:#1E2235; border-radius:24px; position:relative; overflow:hidden; box-shadow:0 30px 60px rgb(0 0 0 / .35); }
+.ticket .mono { color:#6A6457; }
+.t-main { padding:28px 28px 24px; }
+.t-head { display:flex; justify-content:space-between; gap:12px; }
+.t-route { display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center; margin:20px 0 18px; }
+.t-right { text-align:right; }
+.t-code { font:400 clamp(40px,4vw,56px)/1 'Dela Gothic One'; letter-spacing:.02em; }
+.t-code.sm { font-size:15px; margin:6px 0 10px; white-space:nowrap; }
+.t-city { font-size:14px; color:#6A6457; margin-top:4px; }
+.t-arc { color:#1E2235; } .t-arc svg { width:100%; height:auto; display:block; }
+.t-meta { display:grid; grid-template-columns:1.6fr .5fr 1.3fr; gap:12px; padding:14px 0; border-top:1px dashed #C9BFA9; border-bottom:1px dashed #C9BFA9; }
+.t-meta b { display:block; font-weight:600; font-size:14px; margin-top:4px; }
+.t-days { list-style:none; margin:18px 0 0; padding:0 0 0 22px; border-left:2px solid #DDD3BF; }
+.t-days > li { position:relative; padding-bottom:16px; }
+.t-days > li::before { content:""; position:absolute; left:-30px; top:3px; width:14px; height:14px; border-radius:50%; background:var(--dc); box-shadow:0 0 0 3px #F4EEE2; }
+.t-day-h { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+.t-day-h b { font:400 19px 'Tenor Sans'; }
+.t-day-h span { font:500 12px Inter, sans-serif; color:#6A6457; }
+.t-days ul { list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:5px; font-size:14px; }
+.t-days ul li { display:grid; grid-template-columns:58px 1fr; gap:10px; }
+.t-days .tm { font:500 12px Inter, sans-serif; color:#1E2235; padding-top:2px; white-space:nowrap; }
+.t-days li.warn { color:#8A4F0A; }
+@media (max-width:600px) { .t-day-h { flex-direction:column; gap:2px; } .t-main { padding:22px 18px; } }
+.t-stub { border-left:2px dashed #C9BFA9; padding:28px 18px; display:flex; flex-direction:column; gap:6px; position:relative; background:#EDE5D5; }
+.t-stub::before, .t-stub::after { content:""; position:absolute; left:-13px; width:24px; height:24px; border-radius:50%; background:var(--bg); }
+.t-stub::before { top:-12px; } .t-stub::after { bottom:-12px; }
+.t-bar { display:flex; gap:2px; height:64px; margin-top:auto; }
+.t-bar i { background:#1E2235; display:block; }
+.t-url { font-size:12px !important; }
+.r-actions { margin-top:20px !important; }
+.r-next { border-top:0 !important; margin-top:24px !important; }
+@media (max-width:1000px) { .plan-grid, .plan-top { grid-template-columns:1fr; } .capsule { position:static; border-radius:32px; padding:24px; } }
+@media (max-width:600px) { .ticket { grid-template-columns:1fr; } .t-stub { border-left:0; border-top:2px dashed #C9BFA9; flex-direction:row; flex-wrap:wrap; align-items:center; } .t-stub::before, .t-stub::after { display:none; } .t-bar { height:40px; margin-top:0; flex:1 0 100%; } .t-meta { grid-template-columns:1fr 1fr; } .q { min-height:0; } }
+/* ---------- Сияние: ночная сцена ---------- */
+.aur { min-height:100vh; min-height:100svh; }
+.aur-wrap { display:grid !important; grid-template-columns:1.3fr 1fr !important; gap:56px !important; align-items:center !important; padding-top:120px !important; padding-bottom:120px !important; }
+.aur .mono, .come .mono, .diary .mono { font:500 12px/1.5 Inter, sans-serif; letter-spacing:.08em; text-transform:uppercase; color:#A9B2CC; }
+.aur-main h2 { font:400 clamp(48px,6.4vw,100px)/.98 'Tenor Sans' !important; margin:16px 0 0; }
+.aur-lead { color:#C9D0E4; font-size:18px; max-width:520px; margin:24px 0 0; }
+.aur-steps { list-style:none; padding:0; margin:40px 0 0; display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.aur-steps li { border-top:1px solid rgb(91 227 176 / .35); padding-top:16px; }
+.aur-steps .num { font-size:28px; color:#5BE3B0; display:block; }
+.aur-steps b { font:400 22px 'Tenor Sans'; display:block; margin:8px 0 6px; }
+.aur-steps p { font-size:14px !important; color:#A9B2CC !important; margin:0; }
+.aur-panel { background:rgb(11 18 36 / .55); backdrop-filter:blur(10px); border:1px solid rgb(91 227 176 / .2); border-radius:24px; padding:28px; }
+.aur-panel .chance { margin-top:18px; height:120px; }
+.aur-note { font-size:13px !important; color:#A9B2CC !important; margin:14px 0 0 !important; }
+.aur-panel .aur-photo { margin:20px 0 0; max-width:none; }
+/* ---------- Табло ---------- */
+.come { padding:120px 0; }
+.come-head { display:flex; justify-content:space-between; align-items:end; gap:24px; flex-wrap:wrap; }
+.come-head h2 { margin-top:14px !important; }
+.board-clock { font-size:20px !important; color:#F2A541 !important; background:#05080F; padding:10px 16px; border-radius:10px; }
+.board { margin-top:40px; background:#05080F; border-radius:20px; padding:10px 24px; font:500 15px Inter, sans-serif; color:#F5E6C4; box-shadow:inset 0 0 0 1px #1C2747; }
+.b-row { display:grid; grid-template-columns:1.1fr 1.2fr 1.2fr 1fr; gap:16px; padding:16px 0; border-bottom:1px dashed #1C2747; align-items:center; }
+.b-row:last-child { border-bottom:0; }
+.b-th { color:#6F7896; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.b-row .ok { color:#5BE3B0; } .b-row .warn { color:#F2A541; }
+.come-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px; }
+.stay, .pack { background:var(--surface); border-radius:20px; padding:24px 28px; }
+.stay dl { margin:12px 0 0; } .stay dl div { display:grid; grid-template-columns:120px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+.stay dt { font:400 18px 'Tenor Sans'; } .stay dd { margin:0; color:var(--muted); font-size:14px; }
+.pack ul { list-style:none; margin:12px 0 0; padding:0; columns:2; column-gap:20px; }
+.pack li { break-inside:avoid; padding:8px 0 8px 30px; position:relative; font-size:14px; }
+.pack li::before { content:""; position:absolute; left:0; top:9px; width:16px; height:16px; border-radius:5px; box-shadow:inset 0 0 0 1.5px var(--muted); }
+.pack li::after { content:"✓"; position:absolute; left:3px; top:5px; font-size:13px; color:#5BE3B0; }
+/* ---------- Дневник: неделя ---------- */
+.diary { padding:120px 0; }
+.diary-head { display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:end; }
+.diary-head h2 { margin-top:14px !important; }
+.diary-head .who { margin:0 !important; }
+.stories { display:grid; grid-template-columns:240px 1fr; gap:16px; margin-top:40px; }
+.story-today { max-width:none !important; aspect-ratio:9/16; }
+.story-today .in .num { font-size:34px !important; }
+.story-list { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; }
+.story { background:var(--surface); border-radius:20px; padding:16px 14px; display:flex; flex-direction:column; gap:10px; }
+.st-bar { flex:1; min-height:140px; border-radius:12px; background:color-mix(in srgb, var(--text) 8%, transparent); position:relative; overflow:hidden; }
+.st-bar i { position:absolute; left:0; right:0; bottom:0; height:var(--sh); background:linear-gradient(0deg, var(--sc), color-mix(in srgb, var(--sc) 30%, transparent)); }
+.story b { font-size:18px; white-space:nowrap; }
+.story span { font-size:12px; color:var(--muted); }
+.diary blockquote { margin:40px 0 0 !important; max-width:900px; }
+@media (max-width:1000px) { .aur-wrap, .diary-head, .come-grid { grid-template-columns:1fr !important; } .stories { grid-template-columns:1fr; } .story-today { max-width:300px !important; } .story-list { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:700px) { .aur-steps { grid-template-columns:1fr; } .b-row { grid-template-columns:1fr 1fr; gap:4px 12px; } .b-th { display:none; } .pack ul { columns:1; } .story-list { grid-template-columns:repeat(2,1fr); } }
+footer ul { columns:1 !important; } footer li { font-size:14px !important; margin-bottom:10px !important; } footer li b { color:var(--text); font-weight:600; }
+/* ---------- Чистка по «Чистому макету» и «Цвету» (05.10) ---------- */
+/* 3.1: пункты меню — по центру строки шапки, а не по верху растянутой коробки */
+nav.menu { align-items:center; }
+/* 3.9: одна «подпись над заголовком» на весь сайт — моно 12 px */
+.eyebrow, .sky-ui .place, .sky-ui h1.place, footer h4 { font:500 12px/1.5 Inter, sans-serif !important; letter-spacing:.08em !important; text-transform:uppercase; }
+.chance-m { font-size:12px !important; letter-spacing:0; }
+/* 3.9: заголовки разделов одного размера; отступ подпись → заголовок один — 12 px */
+.obs-title h2 { font-size:clamp(36px,4vw,60px); line-height:1.08; }
+.obs-title h2, .plan-top h2, .come-head h2, .diary-head h2, .city-head h2, .routes-head h2 { margin-top:12px !important; }
+/* 3.1: колонки обсерватории начинаются на одной линии */
+.obs-grid { align-items:start; }
+/* 2.21: длительность в талоне не рвётся посередине */
+.nw { white-space:nowrap; }
+/* 4.27: один приглушённый тон в каждой сцене */
+.ticket .mono, .t-city, .t-day-h span { color:#5C574E !important; }
+.aur .eyebrow, .aur .mono, .come .mono, .diary .mono, .chance-m, .aur-steps p, .aur-note { color:var(--muted) !important; }
+/* Первый экран: кнопка одна в правой колонке, низ — на линии чипов; «Листайте» — посередине между чипами и кнопкой (ставит скрипт placeHint) */
+.sky-ui .scroll-hint { position:absolute; left:50%; bottom:20px; transform:translateX(-50%); margin:0; white-space:nowrap; }
+/* Город: без полосы прокрутки — листают стрелками, мышью и пальцем */
+.city-track { scrollbar-width:none; } .city-track::-webkit-scrollbar { display:none; }
+/* Обсерватория: подводка над колонкой «Ближайшие события» — одна сетка с кольцом */
+.obs-top, .obs-grid { grid-template-columns:240px minmax(0,1fr) 300px; gap:24px 48px; }
+.obs-title { grid-column:1 / 3; }
+.obs-lead { grid-column:3; max-width:none; }
+/* Маршруты: веточка ягеля — в правом верхнем углу, не задевает заголовок */
+.route-deco.tl { left:auto; right:-60px; top:24px; transform:scaleX(-1); }
+/* Сияние: панель по высоте колонки с текстом */
+.aur-wrap { grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) !important; width:100%; min-width:0; box-sizing:border-box; }
+@media (min-width:1001px) {
+  .aur-wrap { align-items:stretch !important; }
+  .aur-panel { display:flex; flex-direction:column; }
+  .aur-panel .aur-photo { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .aur-panel .aur-photo img { flex:1; width:100%; min-width:0; min-height:200px; aspect-ratio:auto; }
+}
+@media (max-width:1000px) { .aur-wrap { grid-template-columns:minmax(0,1fr) !important; } }
+/* Телефон: заголовки, подводки, кнопки и короткие блоки — по центру (решение Алины 05.10).
+   Таблицы и списки (талон, табло, рюкзак, события, остановки маршрута) — по левому краю: строки сравнивают между собой. */
+@media (max-width:700px) {
+  .sky-ui .wrap > div, .sky-side, #manifest,
+  .obs-title, .obs-lead, .obs-side:not(.obs-events), .plan-top, .q-title, .q-groups .mono,
+  .city-head, .place-card h3, .place-card p, .routes-head, .route-head,
+  .aur-main, .aur-steps li, .come-head, .diary-head, .diary-head .who, .diary blockquote,
+  footer .cols > div, footer h4, footer li { text-align:center !important; }
+  .sky-days, .q-nav, .q-groups .opts, .ring-hint, .year-legend, .route-dist { justify-content:center !important; }
+  .obs .ring-actions { align-items:center !important; }
+  .city-head, .come-head { flex-direction:column; align-items:center !important; }
+  .plan-top h2, .diary-head h2, .city-head h2, .route-head .desc, .aur-lead, #manifest { margin-left:auto !important; margin-right:auto !important; }
+  .q-groups > div > div:last-child { justify-content:center; }
+  /* 05.10 (Алина): «Дальше» на первом шаге — по центру (скрытая «Назад» не занимает место) */
+  .q-nav { gap:12px; }
+  .q-nav [data-prev][style*="hidden"] { display:none; }
+  /* 05.10 (Алина): «Ближайшие события» — по центру */
+  .obs-events, .obs-events .mono { text-align:center !important; }
+  .obs-events li button { text-align:center; justify-items:center; }
+  /* 05.10 (Алина): карточка «Сегодня» в дневнике — по центру, поля слева и справа равные, текст по центру */
+  .story-today { margin-left:auto !important; margin-right:auto !important; width:100%; }
+  .story-today .in { text-align:center; }
+  .story-today .num { margin-left:0 !important; }
+  /* Подсказка «Листайте — пройдут сутки» — сверху по центру неба (место ставит placeHint) */
+  .sky-ui .scroll-hint { text-shadow:0 1px 12px rgb(0 0 0 / .45); }
+}
+/* 23.10: низкий экран телефона (браузер внутри Threads, Instagram) — первый экран компактнее, чтобы «МУРМАНСК» не теснило */
+@media (max-width:700px) and (max-height:780px) {
+  .sky-ui { padding-bottom:24px; }
+  .sky-ui .wrap { gap:16px; }
+  .clock { font-size:48px !important; margin-top:8px; }
+  .sky-state { margin-top:8px; }
+  .sky-days { margin-top:16px; }
+  .sky-side .hours { margin:4px 0; }
+}
+/* Узор ягеля (lichen-tile) — фон слева в календаре, планировщике, «Как добраться», дневнике. В светлой обсерватории — тёмный */
+.obs.lace::before { filter:invert(1) hue-rotate(180deg); opacity:.22; }
+.come.lace::before, .diary.lace::before { opacity:.3; }
+.chance-m.mono { letter-spacing:0 !important; grid-template-columns:repeat(12, minmax(0,1fr)); }
+.chance-m span { white-space:nowrap; display:flex; justify-content:center; }
+@media (max-width:576px) { .chance-m span:nth-child(even) { visibility:hidden; } }
+/* Дневник: подводка по правому краю, цитата во всю ширину ленты */
+.diary-head .who { text-align:right; }
+.diary blockquote { max-width:none !important; }
+@media (max-width:1100px) { .obs-top, .obs-grid { grid-template-columns:minmax(0,1fr); } .obs-title, .obs-lead { grid-column:auto; } }
+@media (max-width:1000px) { .diary-head .who { text-align:left; } }
+/* Три шрифта: Tenor Sans, Inter, Dela Gothic. Подписи и данные — Inter капсом с моноширинными цифрами */
+.mono, .eyebrow, .sky-ui .place, footer h4, .board, .board-clock, .obs-events li span, .obs-events li em, .t-day-h span, .t-days .tm, .q-dot span, .year-axis, .year-legend, .chance-m { font-variant-numeric:tabular-nums; }
+.mono, .eyebrow, .sky-ui .place, .sky-ui h1.place, footer h4 { font-weight:600 !important; letter-spacing:.1em !important; }
+.board { font-weight:500; letter-spacing:.02em; }
+.board-clock { font-weight:600; letter-spacing:.12em !important; }
+/* Талон: сияние — одной строкой под днями */
+.t-note { display:grid; grid-template-columns:56px 1fr; gap:12px; padding-left:24px; margin:16px 0 0; padding-top:16px; border-top:1px dashed #C9BFA9; font-size:14px; color:#1E2235; }
+.t-note .tm { font:600 12px Inter, sans-serif; font-variant-numeric:tabular-nums; padding-top:2px; }
+/* Утро в конце страницы: после ночи сияния фон светлеет к холодному рассвету, табло — тёмный остров */
+:root:not([data-theme="day"]) .come { background:linear-gradient(180deg, #05080F, #161D40 70%, #1E2650); }
+:root:not([data-theme="day"]) .diary { background:linear-gradient(180deg, #1E2650, #2C3366 60%, #383E78); }
+:root:not([data-theme="day"]) footer { background:#3A4079; border-top-color:rgb(255 255 255 / .12); }
+:root:not([data-theme="day"]) footer, :root:not([data-theme="day"]) footer p { color:#D3D8EA; }
+.diary .story { background:rgb(255 255 255 / .06); box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08); }
+/* «Сегодня» — в цвете страницы, небо поверх в режиме «экран» */
+.story-today { background:linear-gradient(180deg, #232B5E, #343B78) !important; }
+.story-today canvas { mix-blend-mode:screen; }
+/* Шкала года тише кольца: ниже и спокойнее */
+.year-strip svg { height:56px; filter:saturate(.55); opacity:.8; }
+/* Маршрут ближе к вкладкам — без пустой полосы над заголовком */
+.route-hero { min-height:clamp(300px,42vh,440px); }
+.sky-ui .scroll-hint svg { width:20px; height:20px; }
+/* 3.5: точка подсказки — на первой строке, край точки на линии колонки */
+.obs .ring-hint { align-items:flex-start; }
+.obs .ring-hint-dot { flex:none; margin-top:4px; animation-name:pulseS; }
+@keyframes pulseS { 0% { box-shadow:0 0 0 0 rgb(224 138 30 / .5); } 100% { box-shadow:0 0 0 8px rgb(224 138 30 / 0); } }
+/* табло: значки одним стилем */
+.b-ic { width:16px; height:16px; vertical-align:-3px; margin-right:10px; flex:none; }
+/* 4.14–4.15: у кнопок и вариантов есть наведение и фокус */
+.btn:not(.ghost):hover, .fab:hover { filter:brightness(.92); }
+.btn.ghost:hover { box-shadow:inset 0 0 0 1px var(--text) !important; }
+.chip:hover { background:rgb(255 255 255 / .18); }
+.opt.on:hover { box-shadow:none; }
+nav.menu a:hover { opacity:1; }
+a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+/* дубли главного действия: на широком экране кнопка уже есть в шапке */
+@media (min-width:1101px) { .fab, .fab.on { display:none; } }
+@media (max-width:1100px) { footer { padding-bottom:104px; } .plan-jump { position:static !important; } }
+</style></head>
 <body>
-  <header class="site-header" id="header">
-    <a class="brand" href="#home" aria-label="На главную">
-      <span class="brand-mark" aria-hidden="true"><i></i></span>
-      <span>Северный свет</span>
-    </a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Меню</button>
-    <nav id="nav" aria-label="Главная навигация">
-      <a href="#calendar">Календарь</a>
-      <a href="#places">Места</a>
-      <a href="#routes">Маршруты</a>
-      <a href="#aurora">Сияние</a>
-      <a class="nav-cta" href="#planner">Моя поездка</a>
-    </nav>
-  </header>
 
-  <main>
-    <section class="hero" id="home">
-      <div class="stars" aria-hidden="true"></div>
-      <div class="aurora-ribbon" aria-hidden="true"></div>
-      <div class="hero-orbit" aria-hidden="true"><span></span></div>
-      <div class="hero-copy">
-        <p class="kicker">68°58′ северной широты</p>
-        <h1>Город, где<br><em>свет задаёт ритм</em></h1>
-        <p class="hero-lead">Исследуйте Мурманск через длину дня, погоду Севера и маршруты за Полярным кругом.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#planner">Собрать маршрут</a>
-          <a class="text-link" href="#calendar">Посмотреть год <span>↓</span></a>
+<!-- Заставка -->
+<div class="intro" id="intro">
+  <svg viewBox="0 0 120 120" id="introMark"></svg>
+  <div class="cap" id="introCap">Мурманск · 68°58′ с. ш.</div>
+</div>
+
+<header class="top" id="top"><div class="wrap">
+  <a class="brand" href="#sky"><svg data-mark viewBox="0 0 120 120" aria-hidden="true"></svg><b>Мурманск</b></a>
+  <nav class="menu"><a href="#ring">Календарь света</a><a href="#city">Город</a><a href="#routes">Маршруты</a><a href="#aurora">Сияние</a><a href="#plan" class="menu-cta">Собрать поездку</a></nav>
+  <button class="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="mnav"><span></span><span></span></button>
+</div>
+<nav class="mnav" id="mnav" hidden><a href="#plan" class="btn">Собрать поездку</a><a href="#ring">Календарь света</a><a href="#city">Город</a><a href="#routes">Маршруты</a><a href="#aurora">Сияние</a><a href="#come">Как добраться</a></nav>
+</header>
+<a class="fab" href="#plan" id="fab">Собрать поездку</a>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- 1. Сутки -->
+<section class="sky-wrap" id="sky">
+  <canvas id="skyCanvas" aria-hidden="true"></canvas>
+  <h1 class="sr-only">Мурманск по&nbsp;свету: сколько сегодня солнца, полярный календарь и&nbsp;планировщик поездки в&nbsp;Териберку, Хибины и&nbsp;на&nbsp;Рыбачий</h1>
+  <div class="sky-ui"><div class="wrap">
+    <div>
+      <div class="place"><span>Сутки в&nbsp;Мурманске</span> · <span data-date-label>…</span></div>
+      <div class="clock num" data-clock>00:00</div>
+      <div class="sky-state" data-sky-state>…</div>
+      <div class="sky-days pe">
+        <button class="chip on" data-d="today">Сегодня</button>
+        <button class="chip" data-d="06-21">21 июня</button>
+        <button class="chip" data-d="12-15">15 декабря</button>
+        <button class="chip" data-d="03-20">20 марта</button>
+      </div>
+    </div>
+    <div class="sky-side">
+      <div>Светлого времени</div>
+      <div class="hours num" data-hours>…</div>
+      <div data-countdown>…</div>
+      <a class="btn pe hero-cta" href="#plan">Собрать поездку</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" fill="none" stroke="rgb(245 242 234 / .3)" stroke-width="2"/><circle id="dayProgress" cx="14" cy="14" r="12" fill="none" stroke="#F5F2EA" stroke-width="2" stroke-dasharray="75.4" stroke-dashoffset="75.4" transform="rotate(-90 14 14)"/></svg>Листайте — пройдут сутки</div>
+  </div>
+</section>
+
+<!-- 2. Манифест -->
+<section class="manifest"><div class="wrap">
+  <p id="manifest">В&nbsp;Мурманске свет&nbsp;— не&nbsp;фон, а&nbsp;событие. Летом солнце два месяца ходит по&nbsp;кругу и&nbsp;не&nbsp;садится. Зимой сорок дней не&nbsp;встаёт вовсе. Здесь каждый день начинается с&nbsp;вопроса: <em>сколько сегодня света?</em></p>
+</div></section>
+
+<!-- Ленты фото: ряды едут в разные стороны -->
+<section class="strips" aria-label="Фото Мурманска и Териберки"><div class="strips-in" id="strips"></div></section>
+
+<!-- 3. Обсерватория: календарь света -->
+<section class="obs lace" id="ring">
+  <div class="wrap">
+    <div class="obs-top">
+      <div class="obs-title">
+        <div class="mono">Полярный календарь · 68°58′&nbsp;с.&nbsp;ш. · 33°05′&nbsp;в.&nbsp;д.</div>
+        <h2>Год, свёрнутый в&nbsp;круг</h2>
+      </div>
+      <p class="obs-lead">365 лучей — 365 дней. Длина луча — сколько светло. Выберите день — и&nbsp;весь сайт покажет, каким будет Мурманск в&nbsp;эту дату.</p>
+    </div>
+    <div class="obs-grid">
+      <aside class="obs-side">
+        <div class="mono">Выбранный день</div>
+        <div class="obs-day" data-ring-date>…</div>
+        <div class="obs-hours num" data-ring-hours>…</div>
+        <div class="obs-state" data-ring-state>…</div>
+        <div class="ring-actions">
+          <button class="btn" data-apply>Применить дату</button>
+          <button class="btn ghost" data-today>К&nbsp;сегодня</button>
         </div>
+        <div class="ring-hint"><span class="ring-hint-dot"></span><span class="h-mouse">Наведите на&nbsp;круг или шкалу и&nbsp;нажмите</span><span class="h-touch">Нажмите на&nbsp;день круга или шкалы</span></div>
+      </aside>
+      <div class="ring-box">
+        <svg id="ringSvg" viewBox="-450 -450 900 900" role="slider" tabindex="0" aria-label="Календарь света: выберите день года. Стрелки — по дню, Enter — применить"></svg>
+        <div class="ring-center"><div class="sun-ico" data-ring-ico></div></div>
       </div>
-      <div class="hero-status" aria-live="polite">
-        <div><span>Местное время</span><strong id="clock">00:00</strong></div>
-        <div><span>Световой день</span><strong id="hero-daylight">—</strong></div>
-        <div><span>Сезон</span><strong id="hero-season">—</strong></div>
+      <aside class="obs-side obs-events">
+        <div class="mono">Ближайшие события</div>
+        <ol data-events></ol>
+      </aside>
+    </div>
+    <div class="year-strip">
+      <svg id="yearStrip" viewBox="0 0 730 90" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="year-axis mono"><span>янв</span><span>фев</span><span>мар</span><span>апр</span><span>май</span><span>июн</span><span>июл</span><span>авг</span><span>сен</span><span>окт</span><span>ноя</span><span>дек</span></div>
+      <div class="year-legend mono"><span><i class="lg-n"></i>полярная ночь</span><span><i class="lg-d"></i>полярный день</span><span>высота столбика — часы света</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Собрать поездку: квиз в капсуле + билет -->
+<section class="plan lace" id="plan"><div class="wrap">
+  <div class="plan-top">
+    <div><div class="mono">Посадка открыта · ваш маршрут</div><h2>Соберём поездку за&nbsp;минуту</h2></div>
+    <p class="lead">Три вопроса — и&nbsp;билет-маршрут по&nbsp;свету ваших дней: где успеть до&nbsp;темноты, когда ехать в&nbsp;Териберку, в&nbsp;какие ночи ждать сияние.</p>
+  </div>
+  <div class="plan-grid">
+    <div class="capsule">
+      <div class="q-dots" role="tablist" aria-label="Шаги">
+        <button class="q-dot on" data-go="0"><span>1</span>Что увидеть</button>
+        <button class="q-dot" data-go="1"><span>2</span>Когда</button>
+        <button class="q-dot" data-go="2"><span>3</span>Сколько дней</button>
       </div>
-      <p class="scroll-note">Листайте, чтобы пройти через Север</p>
-    </section>
+      <div class="q" data-q="0">
+        <h3 class="q-title">Что хотите увидеть?</h3>
+        <div class="q-groups" data-goals-opts></div>
+      </div>
+      <div class="q" data-q="1" hidden>
+        <h3 class="q-title">Когда приедете?</h3>
+        <div class="date-row"><input type="date" id="pDate" aria-label="Дата приезда"><button class="opt" data-best>Найти подходящие даты</button></div>
+        <div class="date-src" data-date-src></div>
+        <ul class="fit" data-fit></ul>
+      </div>
+      <div class="q" data-q="2" hidden>
+        <h3 class="q-title">На&nbsp;сколько дней?</h3>
+        <div class="days-pick"><div class="days-num num" data-days-num>4</div><div class="days-word" data-days-word>дня</div></div>
+        <input type="range" min="2" max="7" step="1" value="4" id="pDays" aria-label="Количество дней">
+        <div class="days-scale mono"><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+        <p class="days-hint" data-days-hint></p>
+      </div>
+      <div class="q-nav"><button class="btn ghost" data-prev>Назад</button><button class="btn" data-next>Дальше</button></div>
+      <div class="plan-jump" data-plan-jump></div>
+    </div>
+    <div class="result" id="result" data-result tabindex="-1"></div>
+  </div>
+</div></section>
+<!-- 4. Город -->
+<section class="city" id="city"><div class="city-pin">
+  <div class="wrap city-head">
+    <div><div class="eyebrow">Город</div><h2>Самый большой город за&nbsp;Полярным кругом</h2></div>
+    <div class="city-arrows"><button class="opt" data-city-go="-1" aria-label="Назад">←</button><button class="opt" data-city-go="1" aria-label="Вперёд">→</button></div>
+  </div>
+  <div class="city-track" id="cityTrack">
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-lenin.webp')"><span class="n num">01</span></div><h3>Ледокол «Ленин»</h3><p>Первый в&nbsp;мире атомный ледокол. Теперь музей: палубы, каюты и&nbsp;реакторный отсек за&nbsp;стеклом.</p></article>
+    <article class="place-card"><div class="ph ph-r" style="background-image:url('img/city2-alyosha.webp');background-position:center 8%"><span class="n num">02</span></div><h3>Алёша</h3><p>Мемориал защитникам Заполярья на&nbsp;сопке. Отсюда виден весь город и&nbsp;Кольский залив.</p></article>
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-mayak.webp')"><span class="n num">03</span></div><h3>Маяк на&nbsp;набережной</h3><p>Мемориал морякам, погибшим в&nbsp;мирное время, — один из&nbsp;символов города у&nbsp;Семёновского озера.</p></article>
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-semenovskoe.webp')"><span class="n num">04</span></div><h3>Семёновское озеро</h3><p>Озеро в&nbsp;черте города. Зимой по&nbsp;льду ходят, летом гуляют вокруг.</p></article>
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-okeanarium.webp')"><span class="n num">05</span></div><h3>Океанариум</h3><p>Северные тюлени вблизи — не&nbsp;выходя в&nbsp;море.</p></article>
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-muzei.webp')"><span class="n num">06</span></div><h3>Музеи</h3><p>Краеведческий — природа и&nbsp;история Кольского, художественный — Север глазами художников.</p></article>
+    <article class="place-card"><div class="ph" style="background-image:url('img/city2-korablik.webp')"><span class="n num">07</span></div><h3>Город в&nbsp;огнях</h3><p>Зимой Мурманск светится гирляндами — в&nbsp;полярную ночь это особенно чувствуется.</p></article>
+  </div>
+</div></section>
 
-    <section class="statement section-pad">
-      <p class="section-label">Север живёт иначе</p>
-      <p class="statement-copy">Здесь летний день не заканчивается, зимнее утро приходит без солнца, а любое путешествие начинается с вопроса: <em>сколько у нас света?</em></p>
-    </section>
+<!-- 5. Маршруты: вкладки -->
+<section class="routes" id="routes">
+  <span id="teriberka" class="anchor"></span><span id="kirovsk" class="anchor"></span><span id="rybachiy" class="anchor"></span>
+  <div class="wrap routes-head">
+    <div><div class="eyebrow">Три маршрута от&nbsp;Мурманска</div><h2>Куда поехать за&nbsp;светом</h2></div>
+    <div class="tabs" role="tablist" aria-label="Маршруты">
+      <button role="tab" class="tab on" aria-selected="true" data-tab="teri"><b>Териберка</b><span>север · ≈130 км</span></button>
+      <button role="tab" class="tab" aria-selected="false" data-tab="hib"><b>Кировск</b><span>юг · ≈210 км</span></button>
+      <button role="tab" class="tab" aria-selected="false" data-tab="ryb"><b>Рыбачий</b><span>запад · ≈230 км</span></button>
+    </div>
+  </div>
+  <div class="route-sec" data-panel="teri"><div class="route" data-route="teri"></div></div>
+  <div class="route-sec" data-panel="hib" hidden><div class="route" data-route="hib"></div></div>
+  <div class="route-sec" data-panel="ryb" hidden><div class="route" data-route="ryb"></div></div>
+</section>
+<!-- 7. Сияние: ночная сцена -->
+<section class="aur" id="aurora">
+  <canvas id="auroraSky"></canvas>
+  <div class="wrap aur-wrap">
+    <div class="aur-main">
+      <div class="mono">Ночная сцена · 68°58′ с. ш.</div>
+      <h2>Как поймать северное сияние</h2>
+      <p class="aur-lead">Оно бывает и&nbsp;летом, но&nbsp;его не&nbsp;видно — слишком светло. Сезон начинается, когда возвращаются тёмные ночи, и&nbsp;заканчивается весной.</p>
+      <ol class="aur-steps">
+        <li><span class="num">01</span><b>Темнота</b><p>Сезон — с&nbsp;конца августа до&nbsp;апреля. Чем длиннее ночь, тем больше шансов.</p></li>
+        <li><span class="num">02</span><b>Ясное небо</b><p>Облачность важнее всего: смотрите прогноз в&nbsp;день поездки.</p></li>
+        <li><span class="num">03</span><b>Подальше от&nbsp;огней</b><p>Двадцать минут на&nbsp;машине от&nbsp;города. На&nbsp;телефон — ночной режим и&nbsp;упор.</p></li>
+      </ol>
+    </div>
+    <aside class="aur-panel">
+      <div class="mono">Темнота по&nbsp;месяцам · часов в&nbsp;сутки</div>
+      <div class="chance" data-chance></div>
+      <div class="chance-m mono"><span>янв</span><span>фев</span><span>мар</span><span>апр</span><span>май</span><span>июн</span><span>июл</span><span>авг</span><span>сен</span><span>окт</span><span>ноя</span><span>дек</span></div>
+      <p class="aur-note">Расчёт: солнце ниже 6° под горизонтом. Будет&nbsp;ли само сияние, прогнозируют за&nbsp;1–3&nbsp;дня.</p>
+      <figure class="aur-photo"><img src="img/pon-aurora.webp" alt="Северное сияние над поклонным крестом на берегу" loading="lazy"><figcaption>Фото: <a href="https://xn--51-6kcaytumij4e.xn--p1ai/" target="_blank" rel="noopener">«Понаехали»</a></figcaption></figure>
+    </aside>
+  </div>
+</section>
 
-    <section class="calendar section-pad" id="calendar">
-      <div class="section-heading">
-        <div>
-          <p class="section-label">Полярный календарь</p>
-          <h2>Один оборот — целый год</h2>
+<!-- Как добраться: табло -->
+<section class="come lace" id="come"><div class="wrap">
+  <div class="come-head"><div><div class="mono">Табло прибытия · Мурманск</div><h2>Как добраться и&nbsp;что взять</h2></div><div class="board-clock mono" data-board-clock></div></div>
+  <div class="board" role="table" aria-label="Как добраться до Мурманска">
+    <div class="b-row b-th" role="row"><span>Транспорт</span><span>Откуда</span><span>В&nbsp;пути</span><span>Статус</span></div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="i-plane" viewBox="0 0 16 16"><path d="M1.5 9.5 6.5 8 6 2.5h1.6L10.5 8l4 .8v1.4l-4-.4-2.4 3.4H6.6L7.4 10l-5.4.8z" fill="currentColor"/></symbol>
+      <symbol id="i-train" viewBox="0 0 16 16"><rect x="3.5" y="1.5" width="9" height="10.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 7.5h9M6 14.5l1-2.5M10 14.5l-1-2.5" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
+      <symbol id="i-car" viewBox="0 0 16 16"><path d="M2 11V8.5l1.6-3.8A1.5 1.5 0 0 1 5 3.8h6a1.5 1.5 0 0 1 1.4.9L14 8.5V11z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="11" cy="12" r="1.5" fill="currentColor"/></symbol>
+      <symbol id="i-bus" viewBox="0 0 16 16"><rect x="2.5" y="1.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 7h11M5 14.5v-2M11 14.5v-2" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
+      <symbol id="i-hill" viewBox="0 0 16 16"><path d="M1 13.5 6 5l2.5 4L10.5 6.5l4.5 7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    </svg>
+    <div class="b-row" role="row"><span><svg class="b-ic"><use href="#i-plane"/></svg>Самолёт</span><span>Москва · Петербург</span><span>≈2–3&nbsp;ч</span><span class="ok">ежедневно</span></div>
+    <div class="b-row" role="row"><span><svg class="b-ic"><use href="#i-train"/></svg>Поезд</span><span>Москва · Петербург</span><span>≈22–36&nbsp;ч</span><span class="ok">через Карелию</span></div>
+    <div class="b-row" role="row"><span><svg class="b-ic"><use href="#i-car"/></svg>Машина</span><span>трасса «Кола»</span><span>≈1&nbsp;900&nbsp;км от&nbsp;Москвы</span><span class="warn">зимой — с&nbsp;опытом</span></div>
+    <div class="b-row" role="row"><span><svg class="b-ic"><use href="#i-bus"/></svg>По&nbsp;городу</span><span>такси, автобусы</span><span>—</span><span class="ok">круглый год</span></div>
+    <div class="b-row" role="row"><span><svg class="b-ic"><use href="#i-hill"/></svg>Териберка</span><span>своя машина · гид</span><span>≈2&nbsp;ч</span><span class="warn">в&nbsp;метель закрывают</span></div>
+  </div>
+  <div class="come-grid">
+    <div class="stay">
+      <div class="mono">Где жить</div>
+      <dl>
+        <div><dt>Центр</dt><dd>всё пешком, рядом «Ленин» и&nbsp;набережная</dd></div>
+        <div><dt>У&nbsp;вокзала</dt><dd>удобно с&nbsp;поезда</dd></div>
+        <div><dt>За&nbsp;городом</dt><dd>меньше огней, проще с&nbsp;сиянием</dd></div>
+        <div><dt>В&nbsp;Териберке</dt><dd>если хотите встретить там рассвет или ночь</dd></div>
+      </dl>
+    </div>
+    <div class="pack">
+      <div class="mono">Рюкзак под&nbsp;ваши даты</div>
+      <ul data-checklist></ul>
+    </div>
+  </div>
+  <p class="prac-note">Время в&nbsp;пути — ориентир на&nbsp;2026&nbsp;год. Расписание и&nbsp;дорогу в&nbsp;Териберку зимой проверяйте утром перед выездом.</p>
+</div></section>
+
+<!-- 9. Дневник света: неделя сторис -->
+<section class="diary lace"><div class="wrap">
+  <div class="diary-head"><div><div class="mono">Дневник света · неделя</div><h2 data-diary-title>Каждый день света чуть меньше</h2></div>
+    <p class="who">Каждое утро во&nbsp;ВКонтакте — сколько света и&nbsp;что успеть сегодня. Ведёт рубрику виртуальная героиня (ИИ-персонаж).</p></div>
+  <div class="stories">
+    <div class="reel story-today"><canvas id="reelSky"></canvas><div class="in"><div class="mono" style="color:#C9D0E4">Сегодня</div><div class="num" data-reel>…</div><div data-reel-sub style="margin-top:6px;font-size:14px">…</div></div></div>
+    <div class="story-list" data-stories></div>
+  </div>
+  <blockquote data-diary>…</blockquote>
+</div></section>
+<footer><div class="wrap cols">
+  <div><h4>О сайте</h4><p style="margin:0 0 12px">Концепт от&nbsp;жительницы Мурманска — не&nbsp;официальный сайт города. Солнце считается по&nbsp;формуле для&nbsp;68°58′&nbsp;с.&nbsp;ш., точность — несколько минут. Небо нарисовано кодом.</p><p style="margin:0">Дизайн — Алина Кругликова. Хотите такой сайт для&nbsp;своего дела — <a href="https://vk.ru/diz_alinak" target="_blank" rel="noopener">напишите во&nbsp;ВКонтакте</a>.</p></div>
+  <div><h4>Фото</h4><ul data-credits></ul></div>
+</div></footer>
+
+<script>
+// ================= Солнце над Мурманском =================
+const LAT = 68.97, LON = 33.08, TZ = 3, rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+const doy = d => Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 864e5);
+function solar(d) {
+  const n = doy(d), decl = rad(23.44) * Math.sin(2 * Math.PI * (284 + n) / 365);
+  const B = 2 * Math.PI * (n - 81) / 364, eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+  const noon = 720 + (TZ * 15 - LON) * 4 - eot;
+  const c = (Math.sin(rad(-0.833)) - Math.sin(rad(LAT)) * Math.sin(decl)) / (Math.cos(rad(LAT)) * Math.cos(decl));
+  const hours = c >= 1 ? 0 : c <= -1 ? 24 : 2 * deg(Math.acos(c)) / 15;
+  return { decl, noon, hours };
+}
+// Сколько часов солнце ниже −6° (настоящая темнота, видно сияние)
+function darkHours(d) {
+  const s = solar(d), c = (Math.sin(rad(-6)) - Math.sin(rad(LAT)) * Math.sin(s.decl)) / (Math.cos(rad(LAT)) * Math.cos(s.decl));
+  const above = c >= 1 ? 0 : c <= -1 ? 24 : 2 * deg(Math.acos(c)) / 15;
+  return 24 - above;
+}
+function sunAt(s, minutes) { // высота и азимут (от юга) в градусах
+  const H = rad((minutes - s.noon) / 4), phi = rad(LAT);
+  const alt = Math.asin(Math.sin(phi) * Math.sin(s.decl) + Math.cos(phi) * Math.cos(s.decl) * Math.cos(H));
+  const az = Math.atan2(Math.sin(H), Math.cos(H) * Math.sin(phi) - Math.tan(s.decl) * Math.cos(phi));
+  return { alt: deg(alt), az: deg(az) };
+}
+const plural = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? b : c; };
+const durText = h => { let H = Math.floor(h), M = Math.round((h - H) * 60); if (M === 60) { H++; M = 0; } return `${H} ч ${String(M).padStart(2, '0')} мин`; };
+const hm = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MON_IN = ['в январе','в феврале','в марте','в апреле','в мае','в июне','в июле','в августе','в сентябре','в октябре','в ноябре','в декабре'];
+const CHANCE = [.9, .9, .8, .45, .05, 0, 0, .1, .6, .8, .85, .9];
+const murmanskNow = () => { const n = new Date(); return new Date(n.getTime() + (n.getTimezoneOffset() + TZ * 60) * 60000); };
+
+// ================= Знак «Горизонт: сопки и сияние» =================
+const HILLS = 'M6 0 C 16 -6, 24 -14, 36 -12 C 46 -10, 50 -4, 56 -6 C 64 -10, 70 -22, 84 -20 C 96 -18, 104 -6, 114 0 Z';
+function markSVG(h, fg = '#F5F2EA', dim = 'rgb(245 242 234 / .25)') {
+  const CX = 60, CY = 64, R = 32, f = h / 24, y = CY - R * Math.cos(Math.PI * f);
+  let s = '';
+  const k = h >= 17 ? 0 : Math.min(1, (17 - h) / 11);
+  if (k > 0) {
+    s += `<defs><linearGradient id="mg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5BE3B0" stop-opacity="${k}"/><stop offset=".55" stop-color="#5BE3B0" stop-opacity="${k * .45}"/><stop offset="1" stop-color="#5BE3B0" stop-opacity="0"/></linearGradient></defs>`;
+    const room = Math.min(30, Math.max(10, y - 6));
+    for (let x = 14; x <= 106; x += 4.6) {
+      const t = (x - 14) / 92, base = y - 5 - room * .18 * (1 + Math.sin(t * Math.PI * 2.2 + .6));
+      const len = Math.min(room * .8, room * .45 * (.7 + .6 * Math.sin(t * Math.PI) + .25 * Math.sin(x * .9)));
+      if (base - len < 2 || len < 3) continue;
+      s += `<rect class="ray" x="${(x - 1.6).toFixed(1)}" y="${(base - len).toFixed(1)}" width="3.2" height="${len.toFixed(1)}" rx="1.6" fill="url(#mg)"/>`;
+    }
+  }
+  s += `<circle class="c0" cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${dim}" stroke-width="7"/>`;
+  if (f >= 1) s += `<circle class="arc" cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="#F2A541" stroke-width="7"/>`;
+  else if (f > 0) { const a = Math.PI * f, p = t => `${(CX + R * Math.sin(t)).toFixed(2)} ${(CY - R * Math.cos(t)).toFixed(2)}`; s += `<path class="arc" d="M${p(-a)} A${R} ${R} 0 ${f > .5 ? 1 : 0} 1 ${p(a)}" fill="none" stroke="#F2A541" stroke-width="7" stroke-linecap="round"/>`; }
+  s += `<g class="hills" transform="translate(0 ${y.toFixed(2)})"><path d="${HILLS}" fill="${fg}"/></g>`;
+  s += `<line class="hz" x1="6" y1="${y.toFixed(2)}" x2="114" y2="${y.toFixed(2)}" stroke="${fg}" stroke-width="3" stroke-linecap="round"/>`;
+  return s;
+}
+
+// ================= Живое небо (canvas) =================
+function lerp(a, b, t) { return a + (b - a) * t; }
+function hex(c) { const n = parseInt(c.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(c1, c2, t) { const a = hex(c1), b = hex(c2); return `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], t))).join(',')})`; }
+const SKY = [ // высота солнца → верх, середина, горизонт
+  [-18, '#03060E', '#081023', '#0F1B38'],
+  [-10, '#060C1E', '#12204A', '#243A74'],
+  [-5,  '#0E1A3F', '#34457F', '#8A6E9A'],
+  [-1,  '#1F2F66', '#6A6FA0', '#F0A07A'],
+  [3,   '#3F6AAE', '#C9A8A0', '#F6C48C'],
+  [10,  '#5D93CF', '#A9C8E6', '#F2DCC0'],
+  [35,  '#4F8AD0', '#9CC3EA', '#E6EEF2'],
+];
+function skyColors(alt) {
+  if (alt <= SKY[0][0]) return SKY[0].slice(1);
+  for (let i = 1; i < SKY.length; i++) if (alt <= SKY[i][0]) { const t = (alt - SKY[i - 1][0]) / (SKY[i][0] - SKY[i - 1][0]); return [1, 2, 3].map(j => mix(SKY[i - 1][j], SKY[i][j], t)); }
+  return SKY[SKY.length - 1].slice(1);
+}
+function makeSky(canvas, opts = {}) {
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1, stars = [], ridges = [], lights = [];
+  const HZ = () => (W < 600 && opts.mHorizon) ? opts.mHorizon : (opts.horizon ?? .72);
+  const wordLayers = {}, wordImgs = {};
+  // Слово-маска: белый текст → фото «внутрь» букв → тонкий светлый контур для читаемости
+  function buildWord() {
+    if (!opts.word || !W) return;
+    const hy = H * HZ();
+    for (const k of ['day', 'night']) {
+      const img = wordImgs[k]; if (!img || !img.complete || !img.naturalWidth) continue;
+      const off = document.createElement('canvas'); off.width = W * DPR; off.height = H * DPR;
+      const o = off.getContext('2d'); o.setTransform(DPR, 0, 0, DPR, 0, 0);
+      o.font = `400 100px 'Dela Gothic One', sans-serif`;
+      let fs = Math.min(100 * (W * .92) / o.measureText(opts.word).width, H * .26);
+      // На телефоне слово мелкое, а сопки той же высоты: поднимаем, чтобы пики закрывали не больше ~30% букв (как на компьютере)
+      let by = W < 600 ? Math.min(hy - H * .06, hy - H * .09 * 1.25 + fs * .3) : hy - H * .06;
+      // 23.10: на низких экранах (браузер внутри Threads) блок с часами наезжал на слово — ставим слово над блоком, под подсказкой
+      if (W < 600) {
+        const ui = document.querySelector('.sky-ui .wrap'), c = canvas.getBoundingClientRect();
+        if (ui) {
+          by = Math.min(by, ui.getBoundingClientRect().top - c.top - 16);
+          const minTop = (document.getElementById('top')?.getBoundingClientRect().height || 64) + 20 + 28 + 12;
+          if (by - fs * .8 < minTop) fs = Math.max(24, (by - minTop) / .8);
+        }
+      }
+      o.font = `400 ${fs}px 'Dela Gothic One', sans-serif`; o.textAlign = 'center'; o.textBaseline = 'alphabetic';
+      o.fillStyle = '#fff'; o.fillText(opts.word, W / 2, by);
+      o.globalCompositeOperation = 'source-in';
+      const top = by - fs * .8, hgt = fs * .95, s = Math.max(W / img.naturalWidth, hgt / img.naturalHeight);
+      o.drawImage(img, (W - img.naturalWidth * s) / 2, top + (hgt - img.naturalHeight * s) / 2, img.naturalWidth * s, img.naturalHeight * s);
+      o.globalCompositeOperation = 'source-atop'; o.fillStyle = k === 'night' ? 'rgba(160,255,215,.18)' : 'rgba(255,255,255,.1)'; o.fillRect(0, 0, W, H);
+      o.globalCompositeOperation = 'source-over'; o.strokeStyle = 'rgba(245,242,234,.45)'; o.lineWidth = 1.2; o.strokeText(opts.word, W / 2, by);
+      wordLayers[k] = off;
+    }
+  }
+  if (opts.wordPhotos) for (const k in opts.wordPhotos) { const im = new Image(); im.onload = () => document.fonts.ready.then(buildWord); im.src = opts.wordPhotos[k]; wordImgs[k] = im; }
+  const seedRand = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+  function resize() {
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const r = seedRand(7);
+    stars = Array.from({ length: Math.round(W * H / 3500) }, () => ({ x: r() * W, y: r() * H * .75, s: r() * 1.3 + .2, p: r() * 6 }));
+    const hy = H * HZ();
+    ridges = [0, 1, 2].map(k => { const pts = []; const amp = [H * .09, H * .11, H * .13][k], base = hy + k * H * .06; for (let x = -20; x <= W + 20; x += 8) { const t = x / W; pts.push([x, base - amp * (.55 + .45 * Math.sin(t * (3 + k) + k * 1.7) * Math.sin(t * (1.3 + k * .4) + 2 - k)) - amp * .25 * Math.sin(t * 17 + k)]); } return pts; });
+    lights = Array.from({ length: opts.city === false ? 0 : 140 }, () => { const i = Math.floor(r() * ridges[2].length); const [x, y] = ridges[2][i]; return { x: x + (r() - .5) * 6, y: y + 6 + r() * H * .1, s: r() * 1.4 + .6, p: r() * 6 }; });
+    document.fonts?.ready.then(buildWord);
+  }
+  function ridgePath(pts) { ctx.beginPath(); ctx.moveTo(pts[0][0], H); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], H); ctx.closePath(); }
+  function draw(alt, az, t, auroraK) {
+    const [top, mid, hor] = skyColors(alt);
+    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, top); g.addColorStop(.55, mid); g.addColorStop(HZ(), hor); g.addColorStop(1, hor);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const dark = Math.max(0, Math.min(1, (-alt - 4) / 10));
+    // звёзды
+    if (dark > 0) { ctx.fillStyle = '#FFFFFF'; stars.forEach(s => { ctx.globalAlpha = dark * (.35 + .65 * (.5 + .5 * Math.sin(t / 700 + s.p))); ctx.fillRect(s.x, s.y, s.s, s.s); }); ctx.globalAlpha = 1; }
+    // сияние
+    const A = auroraK * dark;
+    if (A > 0.02) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let band = 0; band < 3; band++) {
+        const baseY = H * (.36 + band * .08), step = 5;
+        for (let x = -40; x < W + 40; x += step) {
+          const u = x / W;
+          const wave = Math.sin(u * 5 + t / 3000 + band) * H * .05 + Math.sin(u * 13 - t / 1700 + band * 2) * H * .018;
+          const y0 = baseY + wave;
+          const len = H * (.12 + .1 * (.5 + .5 * Math.sin(u * 9 + t / 1200 + band * 3))) * (1 - band * .2);
+          const flick = .55 + .45 * Math.sin(u * 40 + t / 260 + band);
+          const gr = ctx.createLinearGradient(0, y0, 0, y0 - len);
+          gr.addColorStop(0, `rgba(91,227,176,${.3 * A * flick})`);
+          gr.addColorStop(.5, `rgba(91,227,176,${.13 * A * flick})`);
+          gr.addColorStop(1, `rgba(170,110,230,${.08 * A * flick})`);
+          ctx.fillStyle = gr; ctx.fillRect(x, y0 - len, step + 1, len);
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    // солнце
+    const hy = H * HZ();
+    if (alt > -6) {
+      const sx = W * .5 + (az / 130) * W * .55, sy = hy - (alt / 28) * hy * .85;
+      const rg = ctx.createRadialGradient(sx, sy, 0, sx, sy, H * .35);
+      rg.addColorStop(0, `rgba(255,214,150,${alt > 0 ? .55 : .3 * (1 + alt / 6)})`); rg.addColorStop(1, 'rgba(255,214,150,0)');
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+      if (alt > -1) { ctx.fillStyle = '#FFE3B0'; ctx.beginPath(); ctx.arc(sx, sy, Math.max(10, H * .018), 0, Math.PI * 2); ctx.fill(); }
+    }
+    // огромное слово с фото внутри букв, за сопками: днём — тундра, ночью — сияние
+    if (opts.word && wordLayers.night) {
+      const lightW = Math.max(0, Math.min(1, (alt + 4) / 14));
+      ctx.globalAlpha = 1 - lightW; ctx.drawImage(wordLayers.night, 0, 0, W, H);
+      if (wordLayers.day) { ctx.globalAlpha = lightW; ctx.drawImage(wordLayers.day, 0, 0, W, H); }
+      ctx.globalAlpha = 1;
+    }
+    // сопки: дальние светлее (воздушная перспектива)
+    const light = Math.max(0, Math.min(1, (alt + 6) / 20));
+    const cols = [[mix('#1A2448', '#8C9CB8', light)], [mix('#101832', '#5F6F8C', light)], [mix('#070B18', '#2C3650', light)]];
+    ridges.forEach((pts, i) => { ridgePath(pts); ctx.fillStyle = cols[i][0]; ctx.fill(); });
+    // огни города на ближних сопках
+    if (dark > 0 && lights.length) { lights.forEach(l => { ctx.globalAlpha = dark * (.6 + .4 * Math.sin(t / 900 + l.p)); ctx.fillStyle = '#FFD79A'; ctx.fillRect(l.x, l.y, l.s, l.s); }); ctx.globalAlpha = 1; }
+  }
+  resize(); onResize(resize);
+  return { draw, resize };
+}
+
+// ================= Состояние =================
+let dateSel = new Date(), S = solar(dateSel), minute = 0, startMinute = 0;
+const theme = h => h >= 16 ? 'day' : h >= 5 ? 'dusk' : 'night';
+function stateText(alt, h) {
+  if (h === 0) return alt > -6 ? 'Полярная ночь: солнце не встаёт, но небо светлеет — гражданские сумерки' : alt > -12 ? 'Полярная ночь, синие сумерки' : 'Полярная ночь. В ясную погоду — время сияния';
+  if (h === 24 && alt > 0) return `Полярный день: солнце на ${Math.round(alt)}° над горизонтом и не сядет до утра`;
+  if (alt > 6) return `Солнце на ${Math.round(alt)}° над горизонтом`;
+  if (alt > 0) return 'Солнце низко — золотой час';
+  if (alt > -6) return 'Солнце за сопками — светлые сумерки';
+  if (alt > -12) return 'Синие сумерки';
+  return 'Ночь. В ясную погоду — время сияния';
+}
+
+const skyCanvas = document.getElementById('skyCanvas');
+const sky = makeSky(skyCanvas, { word: 'МУРМАНСК', horizon: .6, mHorizon: .38, wordPhotos: {
+  day: 'img/ext/hero-day.webp',
+  night: 'img/ext/hero-night.webp' } });
+const aurSky = makeSky(document.getElementById('auroraSky'), { horizon: .86, city: false });
+const reelSky = makeSky(document.getElementById('reelSky'), { horizon: .7 });
+
+function setDate(d, keepMinute) {
+  dateSel = d; S = solar(d);
+  document.documentElement.dataset.theme = theme(S.hours);
+  const isToday = d.toDateString() === murmanskNow().toDateString();
+  document.querySelector('[data-date-label]').textContent = `${isToday ? 'сегодня, ' : ''}${d.getDate()} ${MON[d.getMonth()]} · 68°58′ с. ш.`;
+  document.querySelector('[data-hours]').textContent = durText(S.hours);
+  // счётчик
+  const prev = new Date(d); prev.setDate(d.getDate() - 1); const diff = S.hours - solar(prev).hours;
+  const target = S.hours === 0 ? 'back' : S.hours === 24 ? 'set' : diff <= 0 ? 'night' : 'day';
+  let days = 0; const t = new Date(d);
+  while (days < 370) { t.setDate(t.getDate() + 1); days++; const h = solar(t).hours; if ((target === 'night' && h === 0) || (target === 'day' && h === 24) || (target === 'back' && h > 0) || (target === 'set' && h < 24)) break; }
+  const dw = `${days} ${plural(days, 'день', 'дня', 'дней')}`;
+  const cd = { night: `До полярной ночи — ${dw}`, day: `До полярного дня — ${dw}`, back: `Солнце вернётся через ${dw}`, set: `Солнце сядет через ${dw}` }[target];
+  document.querySelector('[data-countdown]').textContent = cd;
+  document.querySelector('[data-mark]').innerHTML = markSVG(S.hours, document.getElementById('top').classList.contains('solid') && theme(S.hours) === 'day' ? '#1A2238' : '#F5F2EA');
+  if (!keepMinute) { const now = murmanskNow(); startMinute = isToday ? now.getHours() * 60 + now.getMinutes() : S.noon; }
+  drawRing(); drawChance(); drawDiary(cd, diff);
+  document.querySelectorAll('.route').forEach(r => r._pts && routeLight(r));
+  if (typeof syncPlanDate === 'function') { syncPlanDate(); if (planTouched.date) { pDate.value = toISO(plan.from); renderPlan(); } }
+}
+
+// ================= Кольцо года =================
+const ringSvg = document.getElementById('ringSvg');
+let ringPick = null;
+function drawRing() {
+  const y = dateSel.getFullYear(); let s = '';
+  const R0 = 170, R1 = 330, ang = i => (i / 365) * Math.PI * 2 - Math.PI / 2, P = (a, r) => `${(Math.cos(a) * r).toFixed(1)} ${(Math.sin(a) * r).toFixed(1)}`;
+  s += `<circle r="${R0 - 14}" fill="none" stroke="var(--line)" stroke-width="1"/><circle r="${R1 + 24}" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 6"/>`;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(y, 0, 1 + i), h = solar(d).hours, a = ang(i), len = 6 + (R1 - R0) * h / 24;
+    const col = h === 0 ? '#3A3F5C' : h === 24 ? '#F2A541' : `hsl(${34 + (1 - h / 24) * 150} ${45 + h / 24 * 40}% ${40 + h / 24 * 14}%)`;
+    s += `<line x1="${(Math.cos(a) * R0).toFixed(1)}" y1="${(Math.sin(a) * R0).toFixed(1)}" x2="${(Math.cos(a) * (R0 + len)).toFixed(1)}" y2="${(Math.sin(a) * (R0 + len)).toFixed(1)}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'].forEach((m, i) => { const a = ang((new Date(y, i, 15) - new Date(y, 0, 1)) / 864e5); s += `<text x="${(Math.cos(a) * (R0 - 34)).toFixed(1)}" y="${(Math.sin(a) * (R0 - 34) + 4).toFixed(1)}" text-anchor="middle" font-family="Inter" font-size="15" fill="var(--muted)">${m}</text>`; });
+  // солнцестояния и равноденствия — моно-выноски снаружи
+  [[2, 20, 'равноденствие'], [5, 21, 'солнцестояние'], [8, 22, 'равноденствие'], [11, 21, 'солнцестояние']].forEach(([m, dd, t]) => {
+    const i = doy(new Date(y, m, dd)) - 1, a = ang(i), right = Math.cos(a) >= 0;
+    s += `<line x1="${P(a, R1 + 18).split(' ')[0]}" y1="${P(a, R1 + 18).split(' ')[1]}" x2="${P(a, R1 + 34).split(' ')[0]}" y2="${P(a, R1 + 34).split(' ')[1]}" stroke="var(--text)" stroke-width="1.5"/>`;
+    const [tx, ty] = P(a, R1 + 42).split(' ');
+    s += `<text x="${tx}" y="${ty}" text-anchor="${Math.abs(Math.cos(a)) < .2 ? 'middle' : right ? 'start' : 'end'}" font-family="Inter" font-size="16" fill="var(--text)"><tspan x="${tx}" dy="${Math.sin(a) < -.5 ? -14 : Math.sin(a) > .5 ? 10 : 0}">${dd} ${MON[m].slice(0, 3)}</tspan><tspan x="${tx}" dy="18" fill="var(--muted)">${t}</tspan></text>`;
+  });
+  const a = ang(doy(dateSel) - 1);
+  s += `<line x1="${(Math.cos(a) * (R0 - 10)).toFixed(1)}" y1="${(Math.sin(a) * (R0 - 10)).toFixed(1)}" x2="${(Math.cos(a) * (R1 + 14)).toFixed(1)}" y2="${(Math.sin(a) * (R1 + 14)).toFixed(1)}" stroke="var(--text)" stroke-width="3" stroke-linecap="round"/>`;
+  s += `<g id="ringPick"></g>`;
+  ringSvg.innerHTML = s;
+  drawStrip(); drawEvents(); showRing(dateSel);
+}
+function showRing(d) {
+  const s = solar(d);
+  document.querySelector('[data-ring-date]').textContent = `${d.getDate()} ${MON[d.getMonth()]}`;
+  document.querySelector('[data-ring-hours]').textContent = durText(s.hours);
+  document.querySelector('[data-ring-state]').textContent = s.hours === 0 ? 'полярная ночь — солнце не встаёт' : s.hours === 24 ? 'полярный день — солнце не садится' : `восход ${hm(s.noon - s.hours * 30)} · закат ${hm(s.noon + s.hours * 30)}`;
+  const ico = document.querySelector('[data-ring-ico]'); if (ico) ico.innerHTML = `<svg viewBox="0 0 120 120">${markSVG(s.hours, '#1E2235', '#C9BFA9')}</svg>`;
+  const i = doy(d) - 1, a = (i / 365) * Math.PI * 2 - Math.PI / 2, g = document.getElementById('ringPick');
+  if (g) g.innerHTML = `<circle class="ring-handle" cx="${(Math.cos(a) * 354).toFixed(1)}" cy="${(Math.sin(a) * 354).toFixed(1)}" r="11" fill="var(--accent)" stroke="var(--bg)" stroke-width="3"/>`;
+  const m = document.getElementById('stripPick'); if (m) m.setAttribute('x', i * 2 - 1.5);
+}
+// Шкала года: те же 365 дней строкой
+function drawStrip() {
+  const y = dateSel.getFullYear(), sv = document.getElementById('yearStrip'); if (!sv) return; let s = '';
+  for (let i = 0; i < 365; i++) {
+    const h = solar(new Date(y, 0, 1 + i)).hours, hh = Math.max(3, h / 24 * 80);
+    s += `<rect x="${i * 2}" y="${86 - hh}" width="1.6" height="${hh}" fill="${h === 0 ? '#3A3F5C' : h === 24 ? '#F2A541' : `hsl(${34 + (1 - h / 24) * 150} ${45 + h / 24 * 40}% ${40 + h / 24 * 14}%)`}"/>`;
+  }
+  s += `<rect x="${(doy(dateSel) - 1) * 2 - 1}" y="0" width="3" height="90" fill="#1E2235"/><rect id="stripPick" x="0" y="0" width="4" height="90" rx="2" fill="#E08A1E"/>`;
+  sv.innerHTML = s;
+}
+// Ближайшие события от сегодняшнего дня
+function drawEvents() {
+  const box = document.querySelector('[data-events]'); if (!box) return;
+  const now = murmanskNow(), t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()), ev = [];
+  let prev = solar(t0).hours;
+  for (let k = 1; k <= 400 && ev.length < 6; k++) {
+    const d = addD(t0, k), h = solar(d).hours;
+    if (h === 0 && prev > 0) ev.push([d, 'Полярная ночь', 'солнце перестаёт вставать']);
+    if (h > 0 && prev === 0) ev.push([d, 'Солнце возвращается', 'первый рассвет после ночи']);
+    if (h === 24 && prev < 24) ev.push([d, 'Полярный день', 'солнце перестаёт садиться']);
+    if (h < 24 && prev === 24) ev.push([d, 'Первый закат', 'конец полярного дня']);
+    if ((d.getMonth() === 5 && d.getDate() === 21) || (d.getMonth() === 11 && d.getDate() === 21)) ev.push([d, 'Солнцестояние', d.getMonth() === 5 ? 'самый светлый день' : 'самая тёмная точка года']);
+    if ((d.getMonth() === 2 && d.getDate() === 20) || (d.getMonth() === 8 && d.getDate() === 22)) ev.push([d, 'Равноденствие', 'день и ночь поровну']);
+    prev = h;
+  }
+  box.innerHTML = ev.slice(0, 4).map(([d, t, sub], i) => { const n = Math.round((d - t0) / 864e5); return `<li><button data-ev="${toISO(d)}"><em>через ${n} ${plural(n, 'день', 'дня', 'дней')}</em><b>${t}</b><span>${d.getDate()} ${MON[d.getMonth()]} · ${sub}</span></button></li>`; }).join('');
+  box.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { const [yy, mm, dd] = b.dataset.ev.split('-').map(Number); applyDate(new Date(yy, mm - 1, dd)); });
+}
+(function stripEvents() {
+  const sv = document.getElementById('yearStrip'); if (!sv) return;
+  const at = e => { const r = sv.getBoundingClientRect(); const i = Math.max(0, Math.min(364, Math.floor((e.clientX - r.left) / r.width * 365))); return new Date(dateSel.getFullYear(), 0, 1 + i); };
+  let down = false;
+  sv.addEventListener('pointerdown', e => { down = true; ringPick = at(e); showRing(ringPick); });
+  sv.addEventListener('pointermove', e => { if (down || e.pointerType === 'mouse') { ringPick = at(e); showRing(ringPick); } });
+  sv.addEventListener('pointerup', e => { down = false; applyDate(at(e)); });
+  sv.addEventListener('pointerleave', () => { down = false; if (ringPick) { ringPick = null; showRing(dateSel); } });
+})();function ringEvent(e) {
+  const r = ringSvg.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+  let a = Math.atan2(y, x) + Math.PI / 2; if (a < 0) a += Math.PI * 2;
+  const i = Math.min(364, Math.floor(a / (Math.PI * 2) * 365));
+  ringPick = new Date(dateSel.getFullYear(), 0, 1 + i); showRing(ringPick, true);
+}
+// Мышь: наведение показывает день, клик применяет. Палец: нажатие выбирает день (прокрутка через кольцо работает)
+ringSvg.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') ringEvent(e); });
+ringSvg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && ringPick) { ringPick = null; showRing(dateSel); } });
+ringSvg.addEventListener('click', e => { ringEvent(e); applyDate(ringPick); });
+// Клавиатура: стрелки — по дню, Shift — по неделе, Enter — применить
+ringSvg.addEventListener('keydown', e => {
+  const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+  if (step) { e.preventDefault(); const base = ringPick || dateSel; ringPick = new Date(base); ringPick.setDate(base.getDate() + step * (e.shiftKey ? 7 : 1)); showRing(ringPick, true); }
+  if (e.key === 'Enter' && ringPick) applyDate(ringPick);
+});
+document.querySelector('[data-apply]').addEventListener('click', () => applyDate(ringPick || dateSel));
+document.querySelector('[data-today]').addEventListener('click', () => applyDate(murmanskNow()));
+function toast(msg, action) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${msg}</span>${action ? `<a href="${action[1]}">${action[0]}</a>` : ''}`;
+  t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 4500);
+}
+function applyDate(d) {
+  setDate(d); ringPick = null; showRing(dateSel);
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  toast(`Сайт переключён на&nbsp;${fmtD(d)}: ${durText(solar(d).hours)} света`, ['Посмотреть небо ↑', '#sky']);
+  track('ring_date', { date: toISO(d) });
+}
+
+// ================= Темнота по месяцам (вместо «шанса») =================
+function drawChance() {
+  const m = dateSel.getMonth(), y = dateSel.getFullYear();
+  document.querySelector('[data-chance]').innerHTML = Array.from({ length: 12 }, (_, i) => {
+    const dh = darkHours(new Date(y, i, 15));
+    return `<div class="${i === m ? 'cur' : ''}" style="height:${Math.max(3, dh / 24 * 100)}%" title="${MON_IN[i]}: ${durText(dh).replace(/ /g, ' ')} темноты"></div>`;
+  }).join('');
+}
+
+// ================= Планировщик поездки =================
+const nb = s => nb0(s).replace(/(\d)\s(?=[а-яё])/gi, '$1 '); // число + слово не разрывать (2.21)
+const nb0 = s => s.replace(/(?<=^|[\s(«])(в|во|на|с|со|к|ко|и|а|до|не|по|о|у|за|от|из|для|без|под|над|при)\s/gi, '$1 ').replace(/\s—/g, ' —');
+const fmtD = d => `${d.getDate()} ${MON[d.getMonth()]}`;
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const PGOALS = [
+  { id: 'aurora', t: 'Северное сияние' }, { id: 'pnight', t: 'Полярную ночь' }, { id: 'pday', t: 'Полярный день' },
+  { id: 'whales', t: 'Китов' }, { id: 'teri', t: 'Териберку' }, { id: 'hibiny', t: 'Хибины и лыжи' }, { id: 'rybachiy', t: 'Рыбачий' },
+  { id: 'nature', t: 'Природу и сопки' }, { id: 'city', t: 'Сам Мурманск' },
+];
+const plan = { goals: new Set(['city', 'teri', 'aurora']), from: null, days: 4 };
+const planTouched = { date: false };
+const WHALE_MONTHS = [4, 5, 6, 7]; // май–август — основной сезон морских прогулок (Tripster, Sputnik8, 2025–26); зимой киты тоже бывают, но выходов в море мало
+const RYB_MONTHS = [5, 6, 7, 8];   // сезон Рыбачьего: конец июня — сентябрь (tutu.ru, 2023)
+const isSki = d => { const m = d.getMonth(), day = d.getDate(); return (m === 10 && day >= 20) || m === 11 || m <= 3 || (m === 4 && day <= 25); }; // «Большой Вудъявр»: ~ноябрь — конец мая
+const winter = d => [9, 10, 11, 0, 1, 2, 3].includes(d.getMonth());
+
+// Подходит ли цель под даты: ok / maybe / no + пояснение
+function fit(id, dates) {
+  const hs = dates.map(d => solar(d).hours), dk = dates.map(darkHours);
+  if (id === 'aurora') {
+    const nights = dk.filter(x => x >= 3).length;
+    if (nights === dates.length) return ['ok', 'Сияние', 'ночи тёмные — шанс есть в ясную погоду'];
+    if (nights > 0) return ['maybe', 'Сияние', 'тёмных ночей мало — только часть поездки'];
+    return ['no', 'Сияние', 'слишком светло: настоящая темнота возвращается к концу августа'];
+  }
+  if (id === 'pnight') return hs.some(h => h === 0) ? ['ok', 'Полярная ночь', 'солнце не встаёт — днём синие сумерки'] : ['no', 'Полярная ночь', 'ваши даты вне её: она примерно со 2 декабря по 11 января'];
+  if (id === 'pday') return hs.some(h => h === 24) ? ['ok', 'Полярный день', 'солнце не садится — светло всю ночь'] : ['no', 'Полярный день', 'ваши даты вне его: он примерно с 22 мая по 22 июля'];
+  if (id === 'whales') return dates.some(d => WHALE_MONTHS.includes(d.getMonth())) ? ['maybe', 'Киты', 'сезон морских прогулок — расписание у гидов'] : ['maybe', 'Киты', 'не основной сезон прогулок — уточните у гидов'];
+  if (id === 'teri') return winter(dates[0]) ? ['maybe', 'Териберка', 'в холодный сезон дорогу закрывают в метель — заложим запасной день'] : ['ok', 'Териберка', 'дорога открыта, около двух часов'];
+  if (id === 'hibiny') {
+    if (plan.days < 4) return ['no', 'Хибины', 'нужно минимум 4 дня: 2 из них — с ночёвкой в Кировске'];
+    return dates.some(isSki) ? ['ok', 'Хибины', 'сезон «Большого Вудъявра» — склоны открыты'] : ['ok', 'Хибины', 'не лыжный сезон — горы, озёра и тропы'];
+  }
+  if (id === 'rybachiy') {
+    if (!dates.some(d => RYB_MONTHS.includes(d.getMonth()))) return ['no', 'Рыбачий', 'туда ездят летом — с конца июня до сентября'];
+    return ['maybe', 'Рыбачий', 'с гидом на внедорожнике; заранее проверьте правила въезда в погранзону и парк'];
+  }
+  if (id === 'nature') return ['ok', 'Природа', winter(dates[0]) ? 'снег: лыжи или снегоступы' : 'сопки, озёра, тундра'];
+  return ['ok', 'Мурманск', 'город на сопках, музеи, «Ленин»'];
+}
+
+// Маршрут по дням
+function buildPlan() {
+  const g = plan.goals, n = plan.days, dates = Array.from({ length: n }, (_, i) => addD(plan.from, i));
+  const days = dates.map(d => ({ d, s: solar(d), items: [] }));
+  const lightTxt = s => s.hours === 0 ? 'полярная ночь' : s.hours === 24 ? 'полярный день' : `${durText(s.hours)} света`;
+  const rise = s => s.noon - s.hours * 30, set = s => s.noon + s.hours * 30;
+  const add = (i, tm, text, warn) => days[i] && days[i].items.push({ tm, text: nb(text), warn });
+  const auroraOk = d => darkHours(d) >= 3;
+  let used = 0;
+
+  // День 1 — город
+  const s1 = days[0].s;
+  add(0, 'день', 'Прилёт или приезд, заселение');
+  if (s1.hours === 0) add(0, hm(s1.noon - 60), 'Синие сумерки — самое светлое время: Алёша и вид на залив');
+  else if (s1.hours < 24) add(0, hm(set(s1) - 60), 'Алёша на закате — весь город и Кольский залив');
+  else add(0, '22:00', 'Алёша «ночью» — солнце не садится, свет как вечером');
+  if (g.has('city') || n <= 2) add(0, 'днём', 'Ледокол «Ленин» — первый в мире атомный, теперь музей');
+  used = 1;
+
+  // Териберка
+  if ((g.has('teri') || g.has('whales') || g.has('nature')) && n >= 2) {
+    const i = Math.min(1, n - 1), s = days[i].s;
+    if (s.hours === 0) add(i, '09:30', 'Выезд в Териберку — к синим сумеркам около полудня');
+    else if (s.hours === 24) add(i, 'любое', 'Выезд в Териберку — светло круглые сутки, можно ехать вечером');
+    else add(i, hm(Math.max(rise(s) - 120, 6 * 60)), 'Выезд в Териберку, около двух часов через тундру');
+    add(i, s.hours === 0 ? '11:30' : 'там', 'Кладбище кораблей и каменный пляж «Яйца драконов»');
+    add(i, '', winter(days[i].d) ? 'Батарейный водопад — зимой тропа сложная, только по погоде' : 'Батарейный водопад — водопад прямо в море');
+    if (g.has('whales')) add(i, '', WHALE_MONTHS.includes(days[i].d.getMonth()) ? 'Морская прогулка к китам — бронировать заранее у гидов' : 'Киты — не основной сезон, уточните у гидов', !WHALE_MONTHS.includes(days[i].d.getMonth()));
+    if (s.hours > 0 && s.hours < 24) add(i, hm(set(s)), 'Закат — лучше быть на обратной дороге до темноты');
+    if (winter(days[i].d)) add(i, '', 'Дорогу могут закрыть в метель — проверьте утром перед выездом', true);
+    used = i + 1;
+  }
+
+  // Хибины: 2 дня с ночёвкой в Кировске (≈210 км, около 3 часов)
+  const hib = g.has('hibiny') && n - used >= 3;
+  if (hib) {
+    const i = used, d = days[i].d, ski = isSki(d), s = days[i].s;
+    add(i, s.hours === 0 ? '08:00' : 'утро', 'Выезд в Кировск — около 3 часов на машине или автобусе от вокзала');
+    add(i, 'днём', ski ? 'Горнолыжный курорт «Большой Вудъявр» — склоны над озером' : 'Озеро Большой Вудъявр и тропы Хибин');
+    add(i, 'вечер', 'Ночёвка в Кировске' + (g.has('aurora') && darkHours(d) >= 3 ? ' — сияние над горами, если ясно' : ''));
+    add(i + 1, s.hours === 0 ? hm(s.noon - 90) : 'днём', ski ? 'Второй день на склонах или снегоходы по Хибинам' : 'Хибины: перевалы, водопады, Полярно-альпийский ботанический сад');
+    add(i + 1, 'вечер', 'Обратно в Мурманск');
+    used += 2;
+  } else if (g.has('hibiny')) add(n - 1, '', 'Хибинам нужно минимум два дня — добавьте дней, чтобы поехать с ночёвкой', true);
+
+  // Рыбачий: только летом, с гидом на внедорожнике
+  if (g.has('rybachiy')) {
+    const summer = dates.some(d => RYB_MONTHS.includes(d.getMonth()));
+    if (summer && n - used >= 3) {
+      const i = used;
+      add(i, 'утро', 'Выезд на Рыбачий с гидом — ≈230 км, последняя часть только на внедорожнике');
+      add(i, 'там', 'Край земли: Баренцево море, сопки, маяки — ночёвка в кемпинге или на базе');
+      add(i, '', 'Рыбачий и Средний — природный парк: поездку заранее согласуйте с Минприроды Мурманской области', true);
+      add(i + 1, 'вечер', 'Обратно в Мурманск');
+      used += 2;
+    } else add(n - 1, '', summer ? 'Рыбачему нужно два дня с ночёвкой — добавьте дней' : 'На Рыбачий ездят летом, с конца июня до сентября', true);
+  }
+
+  // Природа — отдельный день, если есть место
+  if (g.has('nature') && used < n) {
+    const s = days[used].s;
+    add(used, s.hours === 0 ? hm(s.noon - 90) : 'днём', winter(days[used].d) ? 'Сопки над городом на лыжах или снегоступах' : 'Сопки и озёра за городом — тропы через тундру');
+    used++;
+  }
+
+  // Оставшиеся дни — город и запас на погоду
+  for (let i = used; i < n; i++) {
+    const s = days[i].s;
+    if (i === n - 1 && n > 2) add(i, 'днём', 'Океанариум, Семёновское озеро — и в путь домой');
+    else add(i, s.hours === 0 ? hm(s.noon - 60) : 'днём', g.has('teri') && winter(days[i].d) ? 'Запасной день: если Териберку закрыла метель — едем сегодня' : 'Музеи, океанариум, Семёновское озеро');
+  }
+
+  // Ночи — сияние и полярные явления
+  days.forEach((dd, i) => {
+    if (g.has('pday') && dd.s.hours === 24 && i === 0) add(i, '00:00', 'Полночь при солнце — погулять по набережной');
+  });
+  if (g.has('aurora') && !days.some(dd => auroraOk(dd.d))) add(0, '', 'Сияния в эти даты не увидеть — слишком светлые ночи', true);
+
+  // Сияние — одна строка на всю поездку, а не повтор в каждом дне
+  const auroraLine = g.has('aurora') && days.some(dd => auroraOk(dd.d)) ? 'Каждый вечер в 21:00 — проверяем прогноз сияния и облачность: если ясно, едем за город, подальше от огней' : '';
+  return { dates, days, lightTxt, auroraLine };
+}
+
+function renderPlan() {
+  if (!plan.from) return;
+  const { dates, days, lightTxt, auroraLine } = buildPlan();
+  // проверка целей
+  document.querySelector('[data-fit]').innerHTML = [...plan.goals].map(id => { const [c, t, note] = fit(id, dates); return `<li class="${c}"><div><b>${t}</b> — <span>${nb(note)}</span></div></li>`; }).join('');
+  const hs = days.map(dd => dd.s.hours), mn = Math.min(...hs), mx = Math.max(...hs);
+  const range = `${fmtD(dates[0])} — ${fmtD(dates[dates.length - 1])}`;
+  const lightLine = mn === mx ? lightTxt(days[0].s) : `от ${durText(mn)} до ${durText(mx)} света в день`;
+  const dw = `${plan.days} ${plural(plan.days, 'день', 'дня', 'дней')}`;
+  // Коды кириллицей: латинские MMK/TRB совпадают с настоящими аэропортами (TRB — Турбо в Колумбии)
+  const code = plan.goals.has('rybachiy') ? 'РЫБ' : plan.goals.has('hibiny') ? 'КИР' : plan.goals.has('teri') || plan.goals.has('whales') ? 'ТЕР' : 'МУР';
+  const place = { 'РЫБ': 'Рыбачий', 'КИР': 'Кировск', 'ТЕР': 'Териберка', 'МУР': 'Мурманск' }[code];
+  const dotCol = s => s.hours === 0 ? '#3A3F5C' : s.hours === 24 ? '#F2A541' : s.hours < 8 ? '#7FA6D9' : '#E9B44C';
+  const bars = Array.from({ length: 46 }, (_, i) => { const w = [1, 2, 3, 1, 2][(i * 7 + plan.days + dates[0].getDate()) % 5]; return `<i style="width:${w}px"></i>`; }).join('');
+  document.querySelector('[data-result]').innerHTML = `
+    <div class="ticket">
+      <div class="t-main">
+        <div class="t-head"><span class="mono">Посадочный талон · свет</span><span class="mono">№ ${toISO(dates[0]).replace(/-/g, '')}</span></div>
+        <div class="t-route">
+          <div><div class="t-code">МУР</div><div class="t-city">Мурманск</div></div>
+          <div class="t-arc"><svg viewBox="0 0 120 30"><path d="M4 26 Q60 -6 116 26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 4"/><circle cx="60" cy="10" r="5" fill="#E08A1E"/></svg></div>
+          <div class="t-right"><div class="t-code">${code}</div><div class="t-city">${place}</div></div>
         </div>
-        <p>Выберите месяц, чтобы увидеть, как меняется продолжительность дня в Мурманске.</p>
-      </div>
-      <div class="calendar-layout">
-        <div class="month-list" id="month-list" role="listbox" aria-label="Выберите месяц"></div>
-        <div class="day-ring-wrap">
-          <svg class="day-ring" id="day-ring" viewBox="0 0 440 440" role="img" aria-label="Кольцевая диаграмма длины дня"></svg>
-          <div class="ring-value">
-            <span id="ring-month">Октябрь</span>
-            <strong id="ring-hours">—</strong>
-            <small id="ring-note">света в сутки</small>
-          </div>
+        <div class="t-meta">
+          <div><span class="mono">Даты</span><b>${range}</b></div>
+          <div><span class="mono">Дней</span><b>${plan.days}</b></div>
+          <div><span class="mono">Свет</span><b>${mn === mx ? lightTxt(days[0].s) : `<span class="nw">${durText(mn)}</span> — <span class="nw">${durText(mx)}</span>`}</b></div>
         </div>
-        <article class="season-card" id="season-card">
-          <span class="season-icon" aria-hidden="true">✦</span>
-          <p class="section-label">Что это значит</p>
-          <h3 id="season-title">Сумеречный сезон</h3>
-          <p id="season-text">День быстро убывает, но мягкий низкий свет делает город особенно графичным.</p>
-          <button class="button button-secondary" type="button" id="use-month">Использовать для поездки</button>
-        </article>
+        <ol class="t-days">${days.map((dd, i) => `<li style="--dc:${dotCol(dd.s)}">
+          <div class="t-day-h"><b>День ${i + 1}</b><span>${fmtD(dd.d)} · ${lightTxt(dd.s)}</span></div>
+          <ul>${dd.items.map(it => `<li class="${it.warn ? 'warn' : ''}"><span class="tm">${it.tm || ''}</span><span>${it.text}</span></li>`).join('')}</ul></li>`).join('')}</ol>
+        ${auroraLine ? `<p class="t-note"><span class="tm">21:00</span><span>${nb(auroraLine)}</span></p>` : ''}
       </div>
-    </section>
-
-    <section class="places section-pad" id="places">
-      <div class="section-heading">
-        <div><p class="section-label">Город крупным планом</p><h2>Семь северных характеров</h2></div>
-        <div class="slider-controls">
-          <button type="button" id="place-prev" aria-label="Предыдущее место">←</button>
-          <button type="button" id="place-next" aria-label="Следующее место">→</button>
-        </div>
+      <div class="t-stub">
+        <div class="mono">Корешок</div><div class="t-code sm">МУР → ${code}</div>
+        <div class="mono">${fmtD(dates[0])}</div>
+        <div class="t-bar">${bars}</div>
+        <div class="mono t-url">ссылка на&nbsp;маршрут</div>
       </div>
-      <div class="place-stage" id="place-stage" aria-live="polite"></div>
-      <div class="place-dots" id="place-dots" aria-label="Выбор места"></div>
-    </section>
+    </div>
+    <div class="r-actions"><button class="btn" data-copy-link>Сохранить маршрут — ссылка</button><button class="btn ghost" data-copy-text>Скопировать текстом</button></div>
+    <div class="r-toast" data-toast></div>
+    <div class="r-next"><div class="mono">Следующий шаг</div>
+      <a class="r-next-row" href="https://xn--51-6kcaytumij4e.xn--p1ai/tury/" target="_blank" rel="noopener" data-out="tours"><b>Экскурсии с&nbsp;гидом ↗</b><span>Териберка, Хибины, сияние, Рыбачий — туры «Понаехали»</span></a>
+      <button class="r-next-row" data-send-guide><b>Отправить маршрут гиду</b><span>Скопируем план — вставьте его в&nbsp;сообщение гиду</span></button>
+      <a class="r-next-row" href="#come"><b>Как добраться и&nbsp;где жить</b><span>Самолёт, поезд, районы, чек-лист под&nbsp;сезон</span></a>
+    </div>`;  // чек-лист под сезон
+  const w = winter(dates[0]), list = w
+    ? ['Термобельё и пуховик', 'Тёплая непромокаемая обувь, ледоступы', 'Шапка, варежки, баф', 'Пауэрбанк — на морозе телефон садится быстро', 'Налобный фонарик', 'Термос']
+    : ['Ветровка и слои одежды', 'Непромокаемая обувь для тундры', 'Средство от комаров и мошки', 'Маска для сна — ночью светло', 'Пауэрбанк'];
+  if (plan.goals.has('aurora') && dates.some(d => darkHours(d) >= 3)) list.push('Штатив или упор для съёмки сияния');
+  document.querySelector('[data-checklist]').innerHTML = list.map(x => `<li>${nb(x)}</li>`).join('');
+  bindResult(days, range, dw, auroraLine);
+  const jump = document.querySelector('[data-plan-jump]'); if (jump) jump.innerHTML = `<span>Маршрут готов: <b>${dw}</b>, ${range}</span><a href="#result">Смотреть ↓</a>`;
+  const src = document.querySelector('[data-date-src]'); if (src) src.innerHTML = planTouched.date ? '' : 'Дата взята из&nbsp;календаря света выше — можно поменять здесь';
+}
 
-    <section class="routes section-pad" id="routes">
-      <div class="section-heading light">
-        <div><p class="section-label">За пределами города</p><h2>Три направления на край карты</h2></div>
-        <p>Маршруты различаются сезоном, дорогой и настроением. Выберите свой Север.</p>
+function planURL() {
+  const u = new URL(location.href); u.hash = 'plan';
+  u.searchParams.set('goals', [...plan.goals].join(','));
+  u.searchParams.set('from', toISO(plan.from));
+  u.searchParams.set('days', plan.days);
+  return u.toString();
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); return ok; }
+}
+function bindResult(days, range, dw, auroraLine) {
+  const toast = document.querySelector('[data-toast]');
+  document.querySelector('[data-copy-link]').onclick = async () => { toast.textContent = (await copy(planURL())) ? 'Ссылка скопирована — по ней маршрут откроется таким же' : 'Не удалось скопировать — выделите адрес вручную'; };
+  document.querySelector('[data-send-guide]').onclick = () => { document.querySelector('[data-copy-text]').click(); track('plan_send_guide', {}); };
+  document.querySelectorAll('[data-out]').forEach(a => a.onclick = () => track('plan_out', { to: a.dataset.out }));
+  document.querySelector('[data-copy-text]').onclick = async () => {
+    const txt = `Мой Мурманск · ${dw} · ${range}\n` + days.map((dd, i) => `\nДень ${i + 1} · ${fmtD(dd.d)}\n` + dd.items.map(it => `${it.tm ? it.tm + ' — ' : '— '}${it.text.replace(/ /g, ' ')}`).join('\n')).join('\n') + (auroraLine ? `\n\n${auroraLine}` : '') + `\n\n${planURL()}`;
+    toast.textContent = (await copy(txt)) ? 'Маршрут скопирован — можно отправить в мессенджер' : 'Не удалось скопировать';
+  };
+}
+
+// Управление
+const goalsBox = document.querySelector('[data-goals-opts]');
+const GROUPS = [['Хочу увидеть', ['aurora', 'pnight', 'pday', 'whales']], ['Куда поехать', ['teri', 'hibiny', 'rybachiy']], ['Просто погулять', ['nature', 'city']]];
+goalsBox.innerHTML = GROUPS.map(([t, ids]) => `<div class="q-group"><div class="mono">${t}</div><div class="opts">${ids.map(id => `<button class="opt" data-goal="${id}">${PGOALS.find(g => g.id === id).t}</button>`).join('')}</div></div>`).join('');
+let qStep = 0;
+function goStep(n) {
+  qStep = Math.max(0, Math.min(2, n));
+  document.querySelectorAll('[data-q]').forEach(q => q.hidden = +q.dataset.q !== qStep);
+  document.querySelectorAll('.q-dot').forEach((d, i) => { d.classList.toggle('on', i === qStep); d.classList.toggle('done', i < qStep); });
+  document.querySelector('[data-prev]').style.visibility = qStep ? 'visible' : 'hidden';
+  document.querySelector('[data-next]').textContent = qStep === 2 ? 'Готово — к билету' : 'Дальше';
+}
+document.querySelectorAll('.q-dot').forEach(d => d.addEventListener('click', () => goStep(+d.dataset.go)));
+document.querySelector('[data-prev]').addEventListener('click', () => goStep(qStep - 1));
+document.querySelector('[data-next]').addEventListener('click', () => { if (qStep < 2) goStep(qStep + 1); else document.getElementById('result').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
+const pDays = document.getElementById('pDays');
+function syncDays() {
+  pDays.value = plan.days;
+  document.querySelector('[data-days-num]').textContent = plan.days;
+  document.querySelector('[data-days-word]').textContent = plural(plan.days, 'день', 'дня', 'дней');
+  document.querySelector('[data-days-hint]').textContent = plan.days <= 3 ? 'Город и Териберка' : plan.days <= 5 ? 'Хватит на Хибины с ночёвкой в Кировске' : 'Можно Хибины и Рыбачий (летом)';
+}
+pDays.addEventListener('input', () => { plan.days = +pDays.value; syncDays(); renderPlan(); });
+pDays.addEventListener('change', () => track('plan_days', { days: plan.days }));
+function syncGoalBtns() { goalsBox.querySelectorAll('.opt').forEach(b => b.classList.toggle('on', plan.goals.has(b.dataset.goal))); }
+goalsBox.addEventListener('click', e => { const b = e.target.closest('[data-goal]'); if (!b) return; const id = b.dataset.goal; plan.goals.has(id) ? plan.goals.delete(id) : plan.goals.add(id); if (!plan.goals.size) plan.goals.add('city'); syncGoalBtns(); renderPlan(); track('plan_goal', { goal: id, on: plan.goals.has(id) }); });
+const pDate = document.getElementById('pDate');
+const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+pDate.addEventListener('change', () => { if (!pDate.value) return; const [y, m, d] = pDate.value.split('-').map(Number); plan.from = new Date(y, m - 1, d); planTouched.date = true; renderPlan(); track('plan_date', { from: pDate.value }); });
+document.querySelectorAll('[data-days] .opt').forEach(b => b.addEventListener('click', () => { plan.days = +b.dataset.n; document.querySelectorAll('[data-days] .opt').forEach(x => x.classList.toggle('on', x === b)); renderPlan(); track('plan_days', { days: plan.days }); }));
+// Подобрать лучшее время: ближайшая дата, где все цели «ok» или «maybe», а лучше — все «ok»
+document.querySelector('[data-best]').addEventListener('click', () => {
+  const start = addD(murmanskNow(), 14); let best = null, bestScore = -1;
+  for (let k = 0; k < 365; k += 2) {
+    const from = addD(start, k), dates = Array.from({ length: plan.days }, (_, i) => addD(from, i));
+    const score = [...plan.goals].reduce((s, id) => s + ({ ok: 2, maybe: 1, no: -5 })[fit(id, dates)[0]], 0);
+    if (score > bestScore) { bestScore = score; best = from; }
+  }
+  plan.from = best; planTouched.date = true; pDate.value = toISO(best); renderPlan(); track('plan_best', { from: toISO(best) });
+});
+// Меню на телефоне
+(function mobileMenu() {
+  const b = document.querySelector('.burger'), n = document.getElementById('mnav');
+  const set = open => { b.setAttribute('aria-expanded', open); n.hidden = !open; b.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню'); document.getElementById('top').classList.toggle('menu-open', open); };
+  b.addEventListener('click', () => set(n.hidden));
+  n.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !n.hidden) { set(false); b.focus(); } });
+})();
+// Плавающая «Собрать поездку»: видна после первого экрана, прячется, когда планировщик на экране
+(function fab() {
+  const f = document.getElementById('fab'); let pastSky = false, inPlan = false;
+  const upd = () => f.classList.toggle('on', pastSky && !inPlan);
+  new IntersectionObserver(([e]) => { pastSky = !e.isIntersecting && e.boundingClientRect.top < 0; upd(); }).observe(document.getElementById('sky'));
+  new IntersectionObserver(([e]) => { inPlan = e.isIntersecting; upd(); }, { threshold: .15 }).observe(document.getElementById('plan'));
+  document.querySelectorAll('a[href="#plan"]').forEach(a => a.addEventListener('click', () => track('cta_plan', { from: a.className || 'link' })));
+})();
+function syncPlanDate() { if (planTouched.date) return; plan.from = new Date(dateSel); pDate.value = toISO(plan.from); renderPlan(); }
+
+// Маршрут из ссылки
+(function restorePlan() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('goals')) { plan.goals = new Set(q.get('goals').split(',').filter(id => PGOALS.some(g => g.id === id))); }
+  if (q.get('days')) plan.days = Math.min(7, Math.max(2, +q.get('days') || 4));
+  if (q.get('from')) { const [y, m, d] = q.get('from').split('-').map(Number); if (y) { plan.from = new Date(y, m - 1, d); planTouched.date = true; } }
+  syncGoalBtns(); syncDays(); goStep(0);
+})();
+// Неделя сторис: следующие 6 дней от выбранной даты
+// Заголовок дневника зависит от даты: свет убывает / прибывает / полярная ночь / полярный день
+function diaryTitle() {
+  const el = document.querySelector('[data-diary-title]'); if (!el) return;
+  const h0 = solar(dateSel).hours, h1 = solar(addD(dateSel, 1)).hours;
+  const until = test => { for (let n = 1; n < 200; n++) if (test(solar(addD(dateSel, n)).hours)) return n; return 0; };
+  let t;
+  if (h0 === 0) { const n = until(h => h > 0); t = `Солнце вернётся через&nbsp;${n}&nbsp;${plural(n, 'день', 'дня', 'дней')}`; }
+  else if (h0 === 24) { const n = until(h => h < 24); t = `Солнце не&nbsp;заходит ещё&nbsp;${n}&nbsp;${plural(n, 'день', 'дня', 'дней')}`; }
+  else t = h1 < h0 ? 'Каждый день света чуть меньше' : 'Каждый день света чуть больше';
+  el.innerHTML = t;
+}
+function drawStories() {
+  diaryTitle();
+  const box = document.querySelector('[data-stories]'); if (!box) return;
+  const base = solar(dateSel).hours;
+  box.innerHTML = Array.from({ length: 6 }, (_, k) => {
+    const d = addD(dateSel, k + 1), h = solar(d).hours, diff = Math.round((h - base) * 60);
+    const col = h === 0 ? '#3A3F5C' : h === 24 ? '#F2A541' : h < 8 ? '#7FA6D9' : '#E9B44C';
+    return `<div class="story" style="--sc:${col};--sh:${(h / 24 * 100).toFixed(1)}%"><div class="mono">${['вс','пн','вт','ср','чт','пт','сб'][d.getDay()]}<br>${fmtD(d)}</div><div class="st-bar"><i></i></div><b class="num">${durText(h)}</b><span>${h === 0 ? 'полярная ночь' : h === 24 ? 'полярный день' : diff === 0 ? 'как сегодня' : `${diff > 0 ? '+' : '−'}${Math.abs(diff)} мин к&nbsp;сегодня`}</span></div>`;
+  }).join('');
+}
+// Часы на табло — мурманское время
+setInterval(() => { const el = document.querySelector('[data-board-clock]'); if (el) el.textContent = 'Мурманск · ' + hm(murmanskNow().getHours() * 60 + murmanskNow().getMinutes()); }, 1000);function drawDiary(cd, diff) {
+  drawStories();
+  const h = S.hours; document.querySelector('[data-reel]').textContent = durText(h); document.querySelector('[data-reel-sub]').textContent = cd;
+  const min = Math.round(Math.abs(diff) * 60);
+  const plan = h === 0 ? 'Днём — синие сумерки, вечером выезжаем за город ловить сияние.' : h === 24 ? 'Ночью светло, как днём: едем в Териберку после ужина.' : h < 8 ? 'Успеваем на Семёновское озеро до темноты, вечером смотрим прогноз сияния.' : 'Хватит и на город, и на сопки.';
+  document.querySelector('[data-diary]').textContent = nb(`«Сегодня ${durText(h).replace(/ /g, ' ')} света.${h > 0 && h < 24 && min ? ` Вчера было на ${min} ${plural(min, 'минуту', 'минуты', 'минут')} ${diff > 0 ? 'меньше' : 'больше'}.` : ''} ${plan}»`);
+}
+const CREDITS = [
+  ['Фотоленты', 'Unsplash: @ikocs, @salty_morning, @aldodepa, @eugene_rus, @radya, Anastasiia Nelen, @alexanderklimm, @whoisrobinhood, @auchynnikau, @aleex1809 (Unsplash License); Wikimedia Commons: <a href="https://commons.wikimedia.org/wiki/File:Мурманск_-_panoramio_(3).jpg" target="_blank" rel="noopener">Николай Максимович</a> (<a href="https://creativecommons.org/licenses/by/3.0/deed.ru" target="_blank" rel="noopener">CC BY 3.0</a>), <a href="https://commons.wikimedia.org/wiki/File:Батарейный_водопад_впадает_в_Баренцево_море.jpg" target="_blank" rel="noopener">Mihail Siergiejevicz</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.ru" target="_blank" rel="noopener">CC BY-SA 4.0</a>)'],
+  ['«МУРМАНСК» на первом экране', 'Unsplash: @ikocs (день), @auchynnikau (ночь)'],
+  ['Сияние над крестом', 'туроператор <a href="https://xn--51-6kcaytumij4e.xn--p1ai/" target="_blank" rel="noopener">«Понаехали»</a>'],
+  ['Город и маршруты (Териберка, Кировск, Рыбачий)', 'ИИ-иллюстрации, созданные для концепта: реальные места в настроении «золотого часа»'],
+  ['Узор ягеля', 'ИИ-иллюстрация, создана для концепта'],
+  ['Небо, кольцо года, шкалы, тропа', 'нарисованы кодом по расчёту солнца для 68°58′ с. ш.'],
+];
+document.querySelector('[data-credits]').innerHTML = CREDITS.map(([w, a]) => `<li><b>${w}</b> — ${a}</li>`).join('');
+// Кнопки дат на небе
+document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+  const v = b.dataset.d; if (v === 'today') setDate(murmanskNow()); else { const [m, dd] = v.split('-').map(Number); setDate(new Date(murmanskNow().getFullYear(), m - 1, dd)); }
+}));
+
+// ================= Кружево ягеля (генерируется) =================
+function lichenLace(color) {
+  let seed = 11; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const S = 320; let p = '';
+  function branch(x, y, a, len, w, depth) {
+    if (depth === 0 || len < 3) { p += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(w * .9).toFixed(2)}"/>`; return; }
+    const bend = (r() - .5) * .5;
+    const x2 = x + Math.cos(a) * len, y2 = y + Math.sin(a) * len;
+    const cx = x + Math.cos(a + bend) * len * .55, cy = y + Math.sin(a + bend) * len * .55;
+    p += `<path d="M${x.toFixed(1)} ${y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke-width="${w.toFixed(2)}"/>`;
+    const spread = .38 + r() * .22;
+    branch(x2, y2, a - spread, len * (.68 + r() * .1), w * .78, depth - 1);
+    branch(x2, y2, a + spread, len * (.68 + r() * .1), w * .78, depth - 1);
+    if (r() > .7) branch(x2, y2, a + (r() - .5) * .2, len * .5, w * .7, depth - 2);
+  }
+  // розетки ягеля вразнобой по плитке; копии по краям — чтобы узор был бесшовным
+  const tufts = Array.from({ length: 7 }, () => [r() * S, r() * S, 4 + Math.floor(r() * 3), 14 + r() * 12, r() * Math.PI * 2]);
+  tufts.forEach(([x, y, n, len, rot]) => {
+    const branches = [];
+    for (let k = 0; k < n; k++) branches.push([rot + k / n * Math.PI * 2 + (r() - .5) * .4, len * (.8 + r() * .4)]);
+    // копия нужна, только если розетка у края плитки
+    const reach = len * 2.6, dxs = [0], dys = [0];
+    if (x < reach) dxs.push(S); if (x > S - reach) dxs.push(-S);
+    if (y < reach) dys.push(S); if (y > S - reach) dys.push(-S);
+    for (const dx of dxs) for (const dy of dys) { seed = 7 + Math.round(x * 13 + y * 7); branches.forEach(([a, l]) => branch(x + dx, y + dy, a, l, 1.8, 5)); }
+  });
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${S}' height='${S}' viewBox='0 0 ${S} ${S}'><g fill='${color}' stroke='${color}' stroke-linecap='round' fill-opacity='.9' stroke-opacity='.9'>${p.replace(/<path/g, "<path fill='none'")}</g></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+function setLace() {
+  const line = getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#33437A';
+  document.documentElement.style.setProperty('--lace', lichenLace(line));
+}
+
+// Ленты фото
+const PHOTOS = [
+  'img/ext/u-1606841002501.webp', 'img/ext/u-1694349714321.webp',
+  'img/ext/u-1612860640446.webp', 'img/ext/u-1670517301637.webp',
+  'img/ext/u-1615924631431.webp', 'img/ext/u-1662402506572.webp',
+  'img/ext/u-1632397606358.webp', 'img/ext/u-1606841599773.webp',
+  'img/ext/u-1694349714215.webp', 'img/ext/u-1610554121420.webp',
+  'img/ext/u-1711235606920.webp', 'img/ext/u-1670969512961.webp',
+  'img/ext/w-murmansk.webp',
+  'img/ext/w-batareyny.webp',
+];
+document.getElementById('strips').innerHTML = [0, 1, 2].map(row => {
+  const list = PHOTOS.slice(row * 4).concat(PHOTOS.slice(0, row * 4)).concat(PHOTOS);
+  return `<div class="strip" data-row="${row}">${list.map(u => `<img src="${u}" alt="" loading="lazy">`).join('')}</div>`;
+}).join('');
+
+// ================= Маршруты-тропы =================
+const UNS = id => `https://images.unsplash.com/${id}?w=1800&q=70`;
+const ROUTES = {
+  teri: { eyebrow: 'Маршрут · север', title: 'Териберка', sub: 'Туда, где заканчивается дорога', hero: 'img/ai/teriberka_hero.webp', from: 'Мурманск', to: 'Териберка', km: '≈130 км', meta: 'около двух часов · круглый год, зимой по погоде',
+    desc: 'Баренцево море, каменные пляжи, ржавые корабли на берегу. Дальше — только море до полюса.',
+    stops: [
+      ['Кладбище кораблей', 'Ржавые рыболовные суда на берегу — самый узнаваемый кадр Териберки.', UNS('photo-1606841002501-4eebe03697ed'), '@ikocs, Unsplash'],
+      ['«Яйца драконов»', 'Каменный пляж с круглыми валунами, отшлифованными морем.', UNS('photo-1670517301637-80f59360282b'), '@eugene_rus, Unsplash'],
+      ['Батарейный водопад', 'Водопад падает прямо в Баренцево море. Зимой тропа сложная — только по погоде.', 'img/ext/w-batareyny.webp', 'Mihail Siergiejevicz, CC BY-SA 4.0'],
+      ['Баренцево море', 'Бескрайний горизонт и сила Арктики. Зимой волны замерзают у берега.', 'img/pon-teri-shore.webp', '«Понаехали»'],
+      ['Киты', 'Горбатые киты и косатки у берегов. Выходы в море — с местными гидами.', UNS('photo-1694349714321-5d47c270b763'), '@salty_morning, Unsplash'],
+    ],
+    next: ['А ночью Север становится волшебным', 'img/pon-aurora.webp'] },
+  hib: { goal: 'hibiny', eyebrow: 'Маршрут · юг', title: 'Кировск', hero: 'img/hib-hero.webp', sub: 'Хибины за Полярным кругом', from: 'Мурманск', to: 'Кировск', km: '≈210 км', meta: 'около 3 часов · нужна минимум одна ночь',
+    desc: 'Горы, озёра и снежные склоны над городом. Один из самых долгих горнолыжных сезонов в России — примерно с ноября до конца мая.',
+    stops: [
+      ['Дорога в Кировск', 'Около трёх часов на машине или автобусе от вокзала. Город у подножия гор — часы на башне видно издалека.', 'img/pon-kirovsk.webp', '«Понаехали»'],
+      ['Хибины', 'Розовые вершины на рассвете — зимой солнце едва поднимается над горами.', 'img/hib-peaks.webp', 'Peace151, CC BY-SA 4.0'],
+      ['Большой Вудъявр', 'Озеро среди гор и горнолыжный курорт над ним. Зимой — склоны, летом — тропы.', 'img/hib-vudyavr.webp', 'Александр Байдуков, CC BY-SA 4.0'],
+      ['Перевалы и тропы', 'Северный Рисчорр и другие перевалы: снежники даже летом.', 'img/hib-pass.webp', 'Kae, CC BY-SA 3.0'],
+      ['Озёра в тумане', 'Утро в Хибинах: горы отражаются в тихой воде.', 'img/hib-lake.webp', 'Uziel302, CC BY-SA 4.0'],
+    ],
+    next: ['Ночь в Кировске совсем другая', 'img/hib-peaks.webp'] },
+  ryb: { goal: 'rybachiy', eyebrow: 'Маршрут · запад', title: 'Рыбачий', hero: 'img/ryb-hero.webp', sub: 'Край земли на севере', from: 'Мурманск', to: 'Рыбачий', km: '≈230 км', meta: 'только летом · внедорожник или гид',
+    desc: 'Бескрайняя тундра, суровые скалы и Баренцево море у границы с Норвегией. Перед поездкой проверьте правила въезда: пограничная зона и природный парк.',
+    stops: [
+      ['Дорога на край', 'Последняя часть пути — камни и броды: только на внедорожнике, лучше с гидом.', 'img/ryb-road.webp', 'Вячеслав Лобанов, CC BY 3.0'],
+      ['Тундра и просторы', 'Зелёная тундра до горизонта, ветер и ни одного дерева.', 'img/ryb-tundra.webp', 'Вячеслав Ребров, CC BY 3.0'],
+      ['Скалы-столбы', 'Каменные останцы над морем — будто кто-то сложил их из плит.', 'img/pon-rybachiy.webp', '«Понаехали»'],
+      ['Мыс Кекурский', 'Слоистые скалы, которые закат красит в медь.', 'img/ryb-kekursky.webp', 'AndreiBas, CC BY-SA 4.0'],
+      ['Баренцево море', 'Край полуострова: дальше только волны.', 'img/ryb-sea.webp', 'Osipov Oleg, CC BY 3.0'],
+    ],
+    next: ['Тот же Север, только тише', 'img/ryb-aurora.webp'] },
+};
+// Фото маршрутов — ИИ-иллюстрации (сгенерированы для концепта, подписаны на сайте)
+const AI_TITLES = {
+  teri: [['Кладбище кораблей', 'Ржавые суда на берегу — молчаливые свидетели северных историй.'], ['«Яйца драконов»', 'Каменный пляж с круглыми валунами, отшлифованными морем.'], ['Батарейный водопад', 'Вода падает прямо в Баренцево море. Зимой тропа сложная — только по погоде.'], ['Киты', 'Горбатые киты и косатки у берегов. Выходы в море — днём, с местными гидами.'], ['Баренцево море', 'Бескрайний горизонт и сила Арктики. Вечером — смотреть, как темнеет над морем.']],
+  hib: [['Дорога в Кировск', 'Около трёх часов через лес и сопки — на машине или автобусе от вокзала.'], ['Хибины', 'Горы за Полярным кругом: зимой вершины розовеют на коротком закате.'], ['Большой Вудъявр', 'Горнолыжный курорт над озером, подъёмники и виды на весь массив.'], ['Перевалы и тропы', 'Летом — перевалы, снежники и озёра в долинах.'], ['Озёра и водопады', 'Горные реки и каскады — тише всего ранним утром.']],
+  ryb: [['Дорога на край', 'Последняя часть пути — камни и броды: только на внедорожнике, лучше с гидом.'], ['Тундра и просторы', 'Тундра до горизонта, ветер и ни одного дерева.'], ['Скалы и берег', 'Каменные столбы над морем — будто кто-то сложил их из плит.'], ['Маяки и история', 'Маяки на краю полуострова и следы войны.'], ['Край полуострова', 'Дальше только Баренцево море.']],
+};
+const AI_FILE = { teri: 'teriberka', hib: 'kirovsk', ryb: 'rybachiy' };
+Object.entries(AI_FILE).forEach(([k, fn]) => {
+  const R = ROUTES[k];
+  R.hero = `img/ai/${fn}_hero.webp`;
+  R.next[1] = `img/ai/${fn}_aurora.webp`;
+  const order = k === 'teri' ? [1, 2, 3, 5, 4] : [1, 2, 3, 4, 5];
+  R.stops = AI_TITLES[k].map(([t, p], i) => [t, p, `img/ai/${fn}_0${order[i]}.webp`, '', true]);
+});function renderRoute(el) {
+  const R = ROUTES[el.dataset.route], N = R.stops.length;
+  el.innerHTML = `
+    <img class="route-deco tl" src="img/lichen-br2.webp" alt="">
+    <img class="route-deco br" src="img/lichen-br4.webp" alt="">
+    <div class="route-hero"><div class="bg" style="background-image:url('${R.hero || R.stops[0][2]}')"></div>
+      <div class="wrap route-head">
+        <div class="eyebrow">${R.eyebrow}</div><h2>${nb(R.title)}</h2>${R.sub ? `<div class="sub">${nb(R.sub)}</div>` : ''}
+        <p class="desc">${nb(R.desc)}</p><div class="meta">${nb(R.meta)}</div>
+        <div class="route-dist"><b>${R.from}</b><span class="line"><span>${R.km}</span></span><b>${R.to}</b></div>
       </div>
-      <div class="route-tabs" id="route-tabs" role="tablist"></div>
-      <article class="route-card" id="route-card"></article>
-    </section>
+    </div>
+    <div class="route-body">
+      <svg class="route-path" aria-hidden="true"><defs><linearGradient class="rp-grad" id="g-${el.dataset.route}" gradientUnits="userSpaceOnUse" x1="0" x2="0"></linearGradient></defs><path class="rp-base" fill="none" stroke="#F5F2EA" stroke-opacity=".35" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/><path class="rp-line" fill="none" stroke="url(#g-${el.dataset.route})" stroke-width="3" stroke-linecap="round"/><g class="rp-dots"></g></svg>
+      ${R.stops.map(([t, p, img, cr, ai], i) => `<div class="stop">
+        <div class="bg" style="background-image:url('${img}')"></div><div class="shade"></div>
+        
+        <div class="txt"><div class="n">${String(i + 1).padStart(2, '0')} <span>/ ${String(N).padStart(2, '0')}</span></div><div class="lt" data-lt></div><h3>${nb(t)}</h3><p>${nb(p)}</p><div class="dash"></div></div>
+        ${ai ? '' : `<div class="credit">Фото: ${cr}</div>`}</div>`).join('')}
+    </div>
+    <div class="route-next"><div class="bg" style="background-image:url('${R.next[1]}')"></div><div class="txt"><div class="eyebrow">Дальше</div><h3>${nb(R.next[0])}</h3>${R.goal ? `<a href="#plan" data-plan-goal="${R.goal}">Собрать поездку сюда →</a>` : '<a href="#aurora">Смотреть на&nbsp;сияние →</a>'}</div></div>`;
+}
+// Тропа — плавная волна слева от колонки текста (Catmull-Rom через точки)
+function layoutRoute(el) {
+  const body = el.querySelector('.route-body'), svg = body.querySelector('.route-path'), br = body.getBoundingClientRect();
+  const mobile = innerWidth <= 900, W = br.width, wave = [.08, .2, .3, .14, .46, .1, .36];
+  const pts = [...body.querySelectorAll('.stop')].map((s, i) => {
+    const t = s.querySelector('.txt').getBoundingClientRect();
+    const x = mobile ? 28 : Math.round(W * wave[i % wave.length]); s.querySelector('.txt').style.setProperty('--tx', (mobile ? 56 : x + 28) + 'px');
+    return [x, t.top - br.top + 12];
+  });
+  // Тропа: от точки вниз вдоль левого края текста, в промежутке между кадрами — плавный переход к следующей точке
+  const stopsEl = [...body.querySelectorAll('.stop')];
+  const bots = stopsEl.map((s, i) => Math.min(s.getBoundingClientRect().bottom - br.top - 30, (stopsEl[i + 1]?.getBoundingClientRect().top - br.top + 30) || 1e9));
+  let d = `M${pts[0][0] + (mobile ? 0 : 40)} -40 C ${pts[0][0] + (mobile ? 0 : 40)} ${pts[0][1] * .5}, ${pts[0][0]} ${pts[0][1] * .6}, ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length; i++) {
+    const [x, y] = pts[i], yb = Math.max(y + 40, bots[i]);
+    d += ` L${x} ${yb}`;
+    if (pts[i + 1]) { const [x2, y2] = pts[i + 1], dy = y2 - yb; d += ` C ${x} ${yb + dy * .55}, ${x2} ${y2 - dy * .55}, ${x2} ${y2}`; }
+  }  svg.setAttribute('viewBox', `0 0 ${br.width} ${br.height}`);
+  svg.querySelectorAll('path').forEach(p => p.setAttribute('d', d));
+  svg.querySelector('.rp-dots').innerHTML = pts.map(([x, y]) => `<g class="dot" transform="translate(${x} ${y})"><circle class="sun-glow" r="16"/><circle class="sun" r="7"/></g>`).join('');
+  el._pts = pts; el._h = br.height; routeLight(el);
+  const line = svg.querySelector('.rp-line'), L = line.getTotalLength();
+  el._route = { line, L, fr: pts.map(p => { let lo = 0, hi = L; for (let k = 0; k < 24; k++) { const m = (lo + hi) / 2; line.getPointAtLength(m).y < p[1] ? lo = m : hi = m; } return lo / L; }) };
+  drawRouteProgress(el, el._prog || 0);
+}// ================= Маршрут по свету: каждая остановка — время суток выбранной даты =================
+function lightAt(alt, month) {
+  if (alt > 25) return ['солнце высоко', '#FFF1C2'];
+  if (alt > 6) return ['мягкий дневной свет', '#FFD27A'];
+  if (alt > 0) return ['золотой час', '#F2A541'];
+  if (alt > -6) return ['синий час', '#B7A3FF'];
+  return [CHANCE[month] >= .5 ? 'темно — время сияния' : 'светлая ночь', CHANCE[month] >= .5 ? '#5BE3B0' : '#9FB3E8'];
+}
+function routeTimes(s, n) {
+  const H = s.hours, rise = s.noon - H * 30, set = s.noon + H * 30;
+  if (H === 0) return [s.noon - 120, s.noon - 60, s.noon, s.noon + 90, 21 * 60].slice(0, n);   // полярная ночь: синие сумерки днём, ночью сияние
+  if (H === 24) return [9 * 60, 13 * 60, 18 * 60, 23 * 60, 25 * 60].slice(0, n);              // полярный день: солнце и в полночь
+  const pts = [rise + 30, s.noon - H * 10, s.noon, set - 50, Math.max(set + 90, 21 * 60)];
+  return pts.slice(0, n);
+}
+function routeLight(el) {
+  const pts = el._pts; if (!pts) return;
+  const ts = routeTimes(S, pts.length), m = dateSel.getMonth();
+  const info = ts.map(t => { const a = sunAt(S, t).alt, l = lightAt(a, m); if (S.hours === 24 && t >= 22 * 60) l[0] = 'полночное солнце'; return [t, ...l]; });
+  el.querySelectorAll('[data-lt]').forEach((x, i) => { const [t, label, col] = info[i]; x.innerHTML = `<b>${hm(t)}</b> · ${label}`; x.closest('.stop').style.setProperty('--c', col); });
+  el.querySelectorAll('.dot').forEach((d, i) => d.style.setProperty('--c', info[i][2]));
+  const g = el.querySelector('.rp-grad'); g.setAttribute('y1', 0); g.setAttribute('y2', el._h);
+  g.innerHTML = `<stop offset="0" stop-color="${info[0][2]}"/>` + pts.map((p, i) => `<stop offset="${Math.max(0, Math.min(1, p[1] / el._h)).toFixed(3)}" stop-color="${info[i][2]}"/>`).join('') + `<stop offset="1" stop-color="${info[info.length - 1][2]}"/>`;
+}
+function drawRouteProgress(el, p) {
+  el._prog = p; const r = el._route; if (!r) return;
+  r.line.style.strokeDasharray = `${r.L}`; r.line.style.strokeDashoffset = r.L * (1 - p);
+  el.querySelectorAll('.dot').forEach((dEl, i) => dEl.classList.toggle('on', p >= r.fr[i] - .005));
+}
+document.querySelectorAll('.route').forEach(renderRoute);
 
-    <section class="aurora section-pad" id="aurora">
-      <canvas id="aurora-canvas" aria-hidden="true"></canvas>
-      <div class="aurora-content">
-        <p class="section-label">Ночная охота</p>
-        <h2>Сияние любит терпеливых</h2>
-        <p class="aurora-intro">Темнота, чистое небо и расстояние от городских огней важнее красивого прогноза.</p>
-        <ol class="aurora-steps">
-          <li><span>01</span><div><strong>Выберите тёмный месяц</strong><p>С конца августа до середины апреля ночи достаточно длинные.</p></div></li>
-          <li><span>02</span><div><strong>Проверьте облака</strong><p>Прогноз обновляйте перед выездом: погода на побережье меняется быстро.</p></div></li>
-          <li><span>03</span><div><strong>Уезжайте от фонарей</strong><p>Дайте глазам двадцать минут привыкнуть к темноте и смотрите на север.</p></div></li>
-        </ol>
-      </div>
-      <div class="darkness-chart" id="darkness-chart" aria-label="Количество тёмных часов по месяцам"></div>
-    </section>
+// ================= Движение =================
+// Обычная прокрутка браузера (без Lenis). Закреплён только один экран — «Сутки».
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lenis = null;
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+// 23.10: на айфоне при прокрутке прячется и появляется адресная строка — браузер шлёт 'resize' (меняется только высота).
+// Перерисовка неба и маршрутов на каждый такой resize дёргала прокрутку. На сенсорных экранах реагируем только на смену ширины (поворот).
+function onResize(fn) { let w = innerWidth; addEventListener('resize', () => { if (matchMedia('(pointer: coarse)').matches && innerWidth === w) return; w = innerWidth; fn(); }); }
+const track = (name, data) => { (window.dataLayer = window.dataLayer || []).push({ event: name, ...data }); };
 
-    <section class="planner section-pad" id="planner">
-      <div class="section-heading">
-        <div><p class="section-label">Конструктор поездки</p><h2>Ваш Север за три шага</h2></div>
-        <p>Соберите черновик путешествия. Все расчёты выполняются прямо в браузере.</p>
-      </div>
-      <div class="planner-shell">
-        <form id="trip-form">
-          <fieldset>
-            <legend><span>01</span>Что хочется увидеть?</legend>
-            <div class="choice-grid" id="interest-choices"></div>
-          </fieldset>
-          <fieldset>
-            <legend><span>02</span>Когда и на сколько?</legend>
-            <div class="date-grid">
-              <label>Месяц<select id="trip-month"></select></label>
-              <label>Дней<input id="trip-days" type="range" min="2" max="7" value="4"><output id="days-output">4 дня</output></label>
-            </div>
-          </fieldset>
-          <button class="button button-primary" type="submit">Собрать план</button>
-        </form>
-        <aside class="ticket" id="trip-result" aria-live="polite">
-          <p class="ticket-empty">Выберите интересы — здесь появится персональный маршрут.</p>
-        </aside>
-      </div>
-    </section>
-  </main>
+let skyProgress = 0;
+// Сутки: прокрутка = 24 часа, закреплено на 140% высоты экрана
+ScrollTrigger.create({ trigger: '#sky', start: 'top top', end: reduce ? '+=0' : '+=140%', pin: !reduce, anticipatePin: 1, scrub: true, onUpdate: st => { skyProgress = st.progress; document.getElementById('dayProgress').style.strokeDashoffset = 75.4 * (1 - st.progress); } });
+ScrollTrigger.create({ trigger: '#sky', start: 'bottom top+=80', end: 'max', onToggle: st => { document.getElementById('top').classList.toggle('solid', st.isActive); setDate(dateSel, true); } });
 
-  <footer>
-    <div><span class="brand-mark small" aria-hidden="true"><i></i></span><strong>Северный свет</strong></div>
-    <p>Независимый демонстрационный проект для будущей переработки. Данные о продолжительности дня приблизительные.</p>
-    <a href="#home">Наверх ↑</a>
-  </footer>
+// Манифест: слова проявляются (без JS текст виден целиком)
+const man = document.getElementById('manifest');
+if (!reduce) {
+  man.innerHTML = man.innerHTML.split(/(\s+|<em>|<\/em>)/).map(p => p === '<em>' || p === '</em>' || /^\s+$/.test(p) || !p ? p : `<span class="w">${p}</span>`).join('');
+  gsap.fromTo('#manifest .w', { opacity: .14 }, { opacity: 1, stagger: .05, ease: 'none', scrollTrigger: { trigger: '.manifest', start: 'top 75%', end: 'bottom 55%', scrub: true } });
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+// Ленты фото едут в разные стороны
+if (!reduce) document.querySelectorAll('.strip').forEach((s, i) => gsap.fromTo(s, { xPercent: i % 2 ? -30 : 0 }, { xPercent: i % 2 ? 0 : -30, ease: 'none', scrollTrigger: { trigger: '.strips', start: 'top bottom', end: 'bottom top', scrub: true } }));
+
+// Маршруты-тропы: линия прорисовывается, точки загораются
+document.querySelectorAll('.route').forEach(el => {
+  const relayout = () => layoutRoute(el);
+  relayout(); el.querySelectorAll('img').forEach(i => i.addEventListener('load', relayout));
+  onResize(relayout); document.fonts?.ready.then(relayout);
+  ScrollTrigger.create({ trigger: el.querySelector('.route-body'), start: 'top 70%', end: 'bottom 60%', scrub: true, onUpdate: st => drawRouteProgress(el, reduce ? 1 : st.progress), onRefresh: relayout });
+});
+
+// Появление блоков
+gsap.utils.toArray('.reveal').forEach(el => gsap.to(el, { opacity: 1, y: 0, duration: reduce ? 0 : 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
+
+// Город: обычная горизонтальная лента со стрелками (без перехвата прокрутки)
+(function cityNav() {
+  const tr = document.getElementById('cityTrack'), card = () => tr.querySelector('.place-card').getBoundingClientRect().width + 32;
+  document.querySelectorAll('[data-city-go]').forEach(b => b.addEventListener('click', () => tr.scrollBy({ left: +b.dataset.cityGo * card(), behavior: reduce ? 'auto' : 'smooth' })));
+})();
+
+// Вкладки маршрутов
+function showRoute(key, scroll) {
+  document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === key; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); });
+  document.querySelectorAll('[data-panel]').forEach(p => p.hidden = p.dataset.panel !== key);
+  const el = document.querySelector(`.route[data-route="${key}"]`); layoutRoute(el); ScrollTrigger.refresh();
+  if (scroll) document.getElementById('routes').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  track('route_tab', { route: key });
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showRoute(t.dataset.tab)));
+const HASH_TAB = { '#teriberka': 'teri', '#kirovsk': 'hib', '#rybachiy': 'ryb' };
+document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  if (HASH_TAB[a.getAttribute('href')]) { e.preventDefault(); showRoute(HASH_TAB[a.getAttribute('href')], true); }
+  if (a.dataset.planGoal) { plan.goals.add(a.dataset.planGoal); syncGoalBtns(); renderPlan(); toast('Добавили в&nbsp;поездку — выберите даты'); }
+});
+if (HASH_TAB[location.hash]) setTimeout(() => showRoute(HASH_TAB[location.hash], true), 300);
+// Кольцо: при первом показе маркер сам проезжает по кругу — видно, что его можно двигать
+ScrollTrigger.create({ trigger: '#ring', start: 'top 55%', once: true, onEnter: () => {
+  if (reduce) return;
+  const base = doy(dateSel) - 1, o = { k: 0 };
+  gsap.to(o, { k: 1, duration: 2.4, ease: 'power2.inOut', delay: .3,
+    onUpdate: () => { if (ringPick) return; const i = (base + Math.round(Math.sin(o.k * Math.PI) * 110) + 365) % 365; showRing(new Date(dateSel.getFullYear(), 0, 1 + i)); },
+    onComplete: () => { if (!ringPick) showRing(dateSel); } });
+} });
+
+// ================= Заставка: один раз за визит, 2 секунды, закрывается по клику =================
+function intro() {
+  const el = document.getElementById('intro'), svg = document.getElementById('introMark');
+  let seen = false; try { seen = sessionStorage.getItem('intro') === '1'; sessionStorage.setItem('intro', '1'); } catch {}
+  if (reduce || seen) { el.remove(); return; }
+  svg.innerHTML = markSVG(S.hours);
+  const hz = svg.querySelector('.hz'), arc = svg.querySelector('.arc'), c0 = svg.querySelector('.c0');
+  [hz, arc, c0].forEach(p => { if (p?.getTotalLength) { const l = p.getTotalLength(); p.style.strokeDasharray = l; p.style.strokeDashoffset = l; } });
+  const tl = gsap.timeline({ onComplete: () => el.remove() })
+    .to(hz, { strokeDashoffset: 0, duration: .4, ease: 'power2.inOut' })
+    .from(svg.querySelector('.hills'), { opacity: 0, y: 10, duration: .3 }, '-=.1')
+    .to(c0, { strokeDashoffset: 0, duration: .4 }, '-=.2')
+    .to(arc, { strokeDashoffset: 0, duration: .5, ease: 'power2.out' }, '-=.2')
+    .from(svg.querySelectorAll('.ray'), { opacity: 0, scaleY: 0, transformOrigin: 'bottom', stagger: .01, duration: .25 }, '-=.3')
+    .to('#introCap', { opacity: 1, duration: .3 }, '-=.3')
+    .to(el, { opacity: 0, duration: .4, delay: .15 });
+  const skip = () => tl.progress(1);
+  el.addEventListener('click', skip); el.addEventListener('touchstart', skip, { passive: true }); addEventListener('keydown', skip, { once: true }); addEventListener('wheel', skip, { once: true, passive: true });
+}
+
+// ================= Цикл отрисовки: рисуем только видимые canvas =================
+const visible = new Map();
+const io = new IntersectionObserver(es => es.forEach(e => visible.set(e.target.id, e.isIntersecting)), { rootMargin: '100px' });
+['skyCanvas', 'auroraSky', 'reelSky'].forEach(id => { visible.set(id, true); io.observe(document.getElementById(id)); });
+let lastMinute = -1;
+function loop(t) {
+  if (!document.hidden) {
+    const m = (startMinute + skyProgress * 1440) % 1440;
+    if (visible.get('skyCanvas')) {
+      const p = sunAt(S, m);
+      sky.draw(p.alt, p.az, t, CHANCE[dateSel.getMonth()]);
+      const mm = Math.floor(m);
+      if (mm !== lastMinute) { lastMinute = mm; document.querySelector('[data-clock]').textContent = hm(m); document.querySelector('[data-sky-state]').textContent = stateText(p.alt, S.hours); }
+    }
+    if (visible.get('auroraSky')) aurSky.draw(-20, 0, t, 1);
+    if (visible.get('reelSky')) { const pr = sunAt(S, S.hours === 24 ? S.noon + 720 : S.noon + (S.hours === 0 ? 0 : 720)); reelSky.draw(pr.alt, pr.az, t, CHANCE[dateSel.getMonth()]); }
+  }
+  requestAnimationFrame(loop);
+}
+
+setDate(murmanskNow());
+intro();
+requestAnimationFrame(loop);
+
+// «Листайте — пройдут сутки» — посередине между последним чипом и кнопкой, по центру кнопки. Не помещается — прячем.
+function placeHint() {
+  const h = document.querySelector('.sky-ui .scroll-hint'), last = document.querySelector('.sky-days')?.lastElementChild, btn = document.querySelector('.hero-cta');
+  if (!h || !last || !btn) return;
+  h.style.visibility = 'hidden'; h.style.display = '';
+  // Телефон: между чипами и кнопкой места нет — подсказка сверху по центру неба, под шапкой
+  if (innerWidth <= 700) {
+    const top = (document.getElementById('top')?.getBoundingClientRect().height || 64) + 20;
+    Object.assign(h.style, { left: '50%', top: `${top}px`, bottom: 'auto', transform: 'translateX(-50%)', visibility: '' });
+    return;
+  }
+  const ui = h.parentElement.getBoundingClientRect(), c = last.getBoundingClientRect(), b = btn.getBoundingClientRect(), gap = b.left - c.right;
+  if (b.top > c.bottom || gap < h.offsetWidth + 64) { h.style.display = 'none'; return; }
+  Object.assign(h.style, { left: `${c.right + gap / 2 - ui.left}px`, top: `${(b.top + b.height / 2 + c.top + c.height / 2) / 2 - ui.top}px`, bottom: 'auto', transform: 'translate(-50%, -50%)', visibility: '' });
+}
+onResize(placeHint); document.fonts?.ready.then(placeHint); placeHint();
+
+// 3.1: крупные цифры — по краю буквы, а не коробки. У Dela Gothic слева пустое поле: у «1» ≈0,13 em, у остальных ≈0,035 em (замер по снимкам).
+(() => {
+  const fix = el => { const ch = el.textContent.trim()[0]; el.style.marginLeft = ch === '1' ? '-.13em' : /\d/.test(ch || '') ? '-.035em' : '0'; };
+  document.querySelectorAll('.clock, .obs-hours, .sky-side .hours, .story-today .num').forEach(el => { fix(el); new MutationObserver(() => fix(el)).observe(el, { childList: true, characterData: true, subtree: true }); });
+})();
+</script>
+</body></html>
