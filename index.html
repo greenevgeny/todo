@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Независимый интерактивный путеводитель по Мурманску и Кольскому Северу.">
+  <title>Северный свет — Мурманск</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" id="header">
+    <a class="brand" href="#home" aria-label="На главную">
+      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span>Северный свет</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Меню</button>
+    <nav id="nav" aria-label="Главная навигация">
+      <a href="#calendar">Календарь</a>
+      <a href="#places">Места</a>
+      <a href="#routes">Маршруты</a>
+      <a href="#aurora">Сияние</a>
+      <a class="nav-cta" href="#planner">Моя поездка</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="aurora-ribbon" aria-hidden="true"></div>
+      <div class="hero-orbit" aria-hidden="true"><span></span></div>
+      <div class="hero-copy">
+        <p class="kicker">68°58′ северной широты</p>
+        <h1>Город, где<br><em>свет задаёт ритм</em></h1>
+        <p class="hero-lead">Исследуйте Мурманск через длину дня, погоду Севера и маршруты за Полярным кругом.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#planner">Собрать маршрут</a>
+          <a class="text-link" href="#calendar">Посмотреть год <span>↓</span></a>
+        </div>
+      </div>
+      <div class="hero-status" aria-live="polite">
+        <div><span>Местное время</span><strong id="clock">00:00</strong></div>
+        <div><span>Световой день</span><strong id="hero-daylight">—</strong></div>
+        <div><span>Сезон</span><strong id="hero-season">—</strong></div>
+      </div>
+      <p class="scroll-note">Листайте, чтобы пройти через Север</p>
+    </section>
+
+    <section class="statement section-pad">
+      <p class="section-label">Север живёт иначе</p>
+      <p class="statement-copy">Здесь летний день не заканчивается, зимнее утро приходит без солнца, а любое путешествие начинается с вопроса: <em>сколько у нас света?</em></p>
+    </section>
+
+    <section class="calendar section-pad" id="calendar">
+      <div class="section-heading">
+        <div>
+          <p class="section-label">Полярный календарь</p>
+          <h2>Один оборот — целый год</h2>
+        </div>
+        <p>Выберите месяц, чтобы увидеть, как меняется продолжительность дня в Мурманске.</p>
+      </div>
+      <div class="calendar-layout">
+        <div class="month-list" id="month-list" role="listbox" aria-label="Выберите месяц"></div>
+        <div class="day-ring-wrap">
+          <svg class="day-ring" id="day-ring" viewBox="0 0 440 440" role="img" aria-label="Кольцевая диаграмма длины дня"></svg>
+          <div class="ring-value">
+            <span id="ring-month">Октябрь</span>
+            <strong id="ring-hours">—</strong>
+            <small id="ring-note">света в сутки</small>
+          </div>
+        </div>
+        <article class="season-card" id="season-card">
+          <span class="season-icon" aria-hidden="true">✦</span>
+          <p class="section-label">Что это значит</p>
+          <h3 id="season-title">Сумеречный сезон</h3>
+          <p id="season-text">День быстро убывает, но мягкий низкий свет делает город особенно графичным.</p>
+          <button class="button button-secondary" type="button" id="use-month">Использовать для поездки</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="places section-pad" id="places">
+      <div class="section-heading">
+        <div><p class="section-label">Город крупным планом</p><h2>Семь северных характеров</h2></div>
+        <div class="slider-controls">
+          <button type="button" id="place-prev" aria-label="Предыдущее место">←</button>
+          <button type="button" id="place-next" aria-label="Следующее место">→</button>
+        </div>
+      </div>
+      <div class="place-stage" id="place-stage" aria-live="polite"></div>
+      <div class="place-dots" id="place-dots" aria-label="Выбор места"></div>
+    </section>
+
+    <section class="routes section-pad" id="routes">
+      <div class="section-heading light">
+        <div><p class="section-label">За пределами города</p><h2>Три направления на край карты</h2></div>
+        <p>Маршруты различаются сезоном, дорогой и настроением. Выберите свой Север.</p>
+      </div>
+      <div class="route-tabs" id="route-tabs" role="tablist"></div>
+      <article class="route-card" id="route-card"></article>
+    </section>
+
+    <section class="aurora section-pad" id="aurora">
+      <canvas id="aurora-canvas" aria-hidden="true"></canvas>
+      <div class="aurora-content">
+        <p class="section-label">Ночная охота</p>
+        <h2>Сияние любит терпеливых</h2>
+        <p class="aurora-intro">Темнота, чистое небо и расстояние от городских огней важнее красивого прогноза.</p>
+        <ol class="aurora-steps">
+          <li><span>01</span><div><strong>Выберите тёмный месяц</strong><p>С конца августа до середины апреля ночи достаточно длинные.</p></div></li>
+          <li><span>02</span><div><strong>Проверьте облака</strong><p>Прогноз обновляйте перед выездом: погода на побережье меняется быстро.</p></div></li>
+          <li><span>03</span><div><strong>Уезжайте от фонарей</strong><p>Дайте глазам двадцать минут привыкнуть к темноте и смотрите на север.</p></div></li>
+        </ol>
+      </div>
+      <div class="darkness-chart" id="darkness-chart" aria-label="Количество тёмных часов по месяцам"></div>
+    </section>
+
+    <section class="planner section-pad" id="planner">
+      <div class="section-heading">
+        <div><p class="section-label">Конструктор поездки</p><h2>Ваш Север за три шага</h2></div>
+        <p>Соберите черновик путешествия. Все расчёты выполняются прямо в браузере.</p>
+      </div>
+      <div class="planner-shell">
+        <form id="trip-form">
+          <fieldset>
+            <legend><span>01</span>Что хочется увидеть?</legend>
+            <div class="choice-grid" id="interest-choices"></div>
+          </fieldset>
+          <fieldset>
+            <legend><span>02</span>Когда и на сколько?</legend>
+            <div class="date-grid">
+              <label>Месяц<select id="trip-month"></select></label>
+              <label>Дней<input id="trip-days" type="range" min="2" max="7" value="4"><output id="days-output">4 дня</output></label>
+            </div>
+          </fieldset>
+          <button class="button button-primary" type="submit">Собрать план</button>
+        </form>
+        <aside class="ticket" id="trip-result" aria-live="polite">
+          <p class="ticket-empty">Выберите интересы — здесь появится персональный маршрут.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><span class="brand-mark small" aria-hidden="true"><i></i></span><strong>Северный свет</strong></div>
+    <p>Независимый демонстрационный проект для будущей переработки. Данные о продолжительности дня приблизительные.</p>
+    <a href="#home">Наверх ↑</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
